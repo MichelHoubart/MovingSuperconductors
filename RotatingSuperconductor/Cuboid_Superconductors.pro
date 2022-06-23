@@ -108,6 +108,7 @@ Group {
 
 
 Function{
+    MatRot[] = Tensor[1,0,0,0,Cos[$1],-Sin[$1],0,Sin[$1],Cos[$1]];
     // ------- PARAMETERS -------
     // Superconductor parameters
     DefineConstant [ec = 1e-4]; // Critical electric field [V/m]
@@ -190,15 +191,15 @@ Function{
 	For i In {1:Num_Super}
 		If(C_Axis~{i}==1)
 			SQRTAN[Cuboid_Superconductor~{i}] = TensorDiag[Sqrt[Anisotropy_Factor^n[]], 1, 1]; 		// For h-formulation
-			AddRho[Cuboid_Superconductor~{i}] = TensorDiag[RhoSupCaxis, 0, 0]; 					   	// For h-formulation
+			AddRho[Cuboid_Superconductor~{i}] =  MatRot[MyTheta]*TensorDiag[RhoSupCaxis, 0, 0]; 					   	// For h-formulation
 			Anys_Matrix[Cuboid_Superconductor~{i}] = TensorDiag[1/Anisotropy_Factor, 1, 1];	   		// For a-formulation
 		ElseIf(C_Axis~{i}==2)
 			SQRTAN[Cuboid_Superconductor~{i}] = TensorDiag[1, Sqrt[Anisotropy_Factor^n[]], 1]; 		// For h-formulation
-			AddRho[Cuboid_Superconductor~{i}] = TensorDiag[0, RhoSupCaxis, 0]; 					   	// For h-formulation
+			AddRho[Cuboid_Superconductor~{i}] =  MatRot[MyTheta]*TensorDiag[0, RhoSupCaxis, 0]; 					   	// For h-formulation
 			Anys_Matrix[Cuboid_Superconductor~{i}] = TensorDiag[1,1/Anisotropy_Factor, 1];	   		// For a-formulation
 		ElseIf(C_Axis~{i}==3)
 			SQRTAN[Cuboid_Superconductor~{i}] = TensorDiag[1, 1, Sqrt[Anisotropy_Factor^n[]]]; 		// For h-formulation
-			AddRho[Cuboid_Superconductor~{i}] = TensorDiag[0, 0, RhoSupCaxis]; 					   	// For h-formulation
+			AddRho[Cuboid_Superconductor~{i}] = MatRot[MyTheta]*TensorDiag[0, 0, RhoSupCaxis]; 					   	// For h-formulation
 			Anys_Matrix[Cuboid_Superconductor~{i}] = TensorDiag[1, 1, 1/Anisotropy_Factor];	   		// For a-formulation
 		Else
 			SQRTAN[Cuboid_Superconductor~{i}] = TensorDiag[1, 1, 1]; 								// For h-formulation
@@ -222,24 +223,20 @@ Function{
     // 0: sine, 1: triangle, 2: up-down-pause TFE , 3: step, 4: up-pause-down
 	If(Active_approach==0)
 		DefineConstant [Flag_Source = {2, Highlight "yellow", Choices{
-			0="Sine",
-			1="Triangle",
+			1="Field Cooled (with current in Super)",
 			2="Magnetisation TFE",
-			3="No source => For modelling motion",
-			4="Up-pause-down"}, Name "Input/4Source/0Source field type" }];
+			3="No source => For modelling motion"}, Name "Input/4Source/0Source field type" }];
 	Else
 		DefineConstant [Flag_Source = {3, Visible 0, Highlight "yellow", Choices{
-			0="Sine",
-			1="Triangle",
+			1="Field Cooled (with current in Super)",
 			2="Magnetisation TFE",
-			3="No source => For modelling motion",
-			4="Up-pause-down"}, Name "Input/4Source/0Source field type" }];
+			3="No source => For modelling motion"}, Name "Input/4Source/0Source field type" }];
 	EndIf
     DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
     DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
     DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
     DefineConstant [timeStart = 0]; // Initial time [s]
-    DefineConstant [timeFinal = (Flag_Source == 0) ? 5/(4*f) : (Flag_Source == 1) ? 5*partLength : (Flag_Source == 2) ? 7500 : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : 3*partLength]; // Final time for source definition [s]
+    DefineConstant [timeFinal = (Flag_Source == 1) ? 6000 : (Flag_Source == 2) ? 7500 : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : 3*partLength]; // Final time for source definition [s]
     DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
     DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
     DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
@@ -297,29 +294,22 @@ Function{
     mu0 = 4*Pi*1e-7; // [H/m]
     nu0 = 1.0/mu0; // [m/H]
     hmax = bmax / mu0;
-    If(Flag_Source == 0)
-        // Sine source field
-        controlTimeInstants = {timeFinalSimu, 1/(2*f), 1/f, 3/(2*f), 2*timeFinal};
-        hsVal[] = hmax * Sin[2.0 * Pi * f * $Time];
-    ElseIf(Flag_Source == 1)
-        // Triangle source field (5/4 of a complete cycle)
-        controlTimeInstants = {timeFinal, timeFinal/5.0, 3.0*timeFinal/5.0, timeFinal};
-        rate = hmax * 5.0 / timeFinal;
-        hsVal[] = (($Time < timeFinal/5.0) ? $Time * rate :
-                    ($Time >= timeFinal/5.0 && $Time < 3.0*timeFinal/5.0) ?
-                    hmax - ($Time - timeFinal/5.0) * rate :
-                    - hmax + ($Time - 3.0*timeFinal/5.0) * rate);
-    ElseIf(Flag_Source == 4)
-        // Up-pause-down
-        controlTimeInstants = {timeFinal/3.0, 2.0*timeFinal/3.0, timeFinal};
-        rate = hmax * 3.0 / timeFinal;
-        hsVal[] = (($Time < timeFinal/3.0) ? $Time * rate :
-                    ($Time < 2.0*timeFinal/3.0 ? hmax : hmax - ($Time - 2.0*timeFinal/3.0) * rate));
-
+    If(Flag_Source == 1)
+        // Modelling a Field cooled (but with current inside the superconductor)
+        controlTimeInstants = {3600, 6000};
+        bmax_m = 3.6;
+    		rate = bmax_m/3600;
+    		qttMax = bmax_m / mu0;
+            hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 :
+                        ($Time * rate  > bmax_m) ?
+                        qttMax - (($Time - 3600) * rate)/mu0);
+            hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 :
+                        (($Time-$DTime) * rate  > bmax_m?
+                        qttMax - ((($Time-$DTime) - 3600) * rate)/mu0 );
 	ElseIf(Flag_Source == 2)
 		// Source Big Blue Magnet with 45 min of Mag. Relax.
 		controlTimeInstants = {2400, 4800, timeFinal};
-		bmax_m = 3;
+		bmax_m = 2.4;
 		rate = bmax_m/2400;
 		qttMax = bmax_m / mu0;
         hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 :
@@ -340,7 +330,7 @@ Function{
 	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\Getdp\RotatingSuperconductor";
   Str_LcCube = "7";
   Velocity[] = Vector[0,0,0];
-  MatRot[] = Tensor[1,0,0,0,Cos[$1],-Sin[$1],0,Sin[$1],Cos[$1]];
+
   For i In {1:Num_Super}
     CentreSuperconductor~{i}[] = Vector[CentreXSuperconductor~{i},CentreYSuperconductor~{i},CentreZSuperconductor~{i}];
   EndFor
@@ -350,8 +340,10 @@ Function{
 			//************ Initial condition File Depending on the considered modelled samples ****************//
       /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_CentralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Central
       DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\hfield_CentralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Central */
-      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\afield_CentralEch_LcCube_0_00035.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\hfield_CentralEch_LcCube_0_00035.pos"]];	// Central
+      /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\afield_CentralEch_LcCube_0_00035.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\hfield_CentralEch_LcCube_0_00035.pos"]];	// Central */
+      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\a_NbelemCube6.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\h_NbelemCube6.pos"]];	// Central
 
 				// Read a from File
 				GmshRead[ initialConditionFile_a1,1];

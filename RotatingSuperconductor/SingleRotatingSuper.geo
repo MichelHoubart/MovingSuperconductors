@@ -1,7 +1,7 @@
 For i In {1:Num_Super}
 		materialVol~{i} = i*100;
 		Block(materialVol~{i}) = {x_Bottom_Super~{i}, y_Bottom_Super~{i}, z_Bottom_Super~{i}, ax~{Sample~{i}}, ay~{Sample~{i}}, az~{Sample~{i}}};
-		If(Active_approach==1)
+		If(Active_approach==1||Flag_Test_projection==1)
 			Rotate {{1, 0, 0}, {x_Bottom_Super~{i}+ax~{Sample~{i}}/2, y_Bottom_Super~{i}+ay~{Sample~{i}}/2, z_Bottom_Super~{i}+az~{Sample~{i}}/2}, MyTheta} { Volume{materialVol~{i}};}
 		EndIf
 		f_c~{i}() = Boundary{Volume{materialVol~{i}};};

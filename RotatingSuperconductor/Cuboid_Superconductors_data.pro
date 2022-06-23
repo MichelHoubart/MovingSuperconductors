@@ -8,7 +8,7 @@ R_inf = 0.1; // Outer shell radius [m]
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
 DefineConstant [NbElemCube = 6]; // Mesh size in superconductors [m]
-DefineConstant [LcAir = meshMult*0.0014]; // Mesh size away from superconductors [m]
+DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m]
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
@@ -17,7 +17,7 @@ coupled_formulation = 5;
 
 // ---- Parameters of the configuration ----
 DefineConstant[
-  Modelled_Samples = {3, Choices{
+  Modelled_Samples = {1, Choices{
         1="1 : Qualitative bulk",
         2="2 : Real Bulks",
         3="3 : Stacked Tapes"}
@@ -63,9 +63,9 @@ EndIf
 // ---- Rotation of the bulk ----
 // Position of the centre of each BULK
 If(Num_Super==1)
-  CentreXSuperconductor_1 = 0;
-  CentreYSuperconductor_1 = 0;
-  CentreZSuperconductor_1 = 0.001;
+  CentreXSuperconductor_1 = 0.00;
+  CentreYSuperconductor_1 = 0.00;
+  CentreZSuperconductor_1 = 0.00;
   // x Bottom
   x_Bottom_Super_1 = CentreXSuperconductor_1-ax~{Sample_1}/2;
   // y Bottom
@@ -106,7 +106,7 @@ Approach_cycle_nb = 1;
 
 DefineConstant[ ThetaMax = {Pi, Name "zBulks Rotation/Input/1Maximum Value of the rotation angle", Visible 1}];
 DefineConstant[ Time_step_per_cycle = {10, Name "zBulks Motion/Input/2Time step per cycle", Visible Active_approach }];
-DefineConstant[ Rotation_Speed = { Pi/800 , Name "zBulks Motion/Input/3Rotation speed [Rad/s]", Visible Active_approach }];
+DefineConstant[ Rotation_Speed = { Pi/100 , Name "zBulks Motion/Input/3Rotation speed [Rad/s]", Visible Active_approach }];
 DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Name "zBulks Motion/Input/4Time step duration during motion[s]", Visible Active_approach }];
 DefineConstant[ Flag_Test_projection = {0, Name "zBulks Motion/Input/5Test Projection"}];
 DefineConstant [Flag_JcB = {0, Name "Input/3Material Properties/6Jc(B) dependence?"}];
