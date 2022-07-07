@@ -57,8 +57,18 @@ Group {
     IsThereSuper = 0; // Will be updated below if necessary
     Flag_Hysteresis = 0; // Will be updated below if necessary
     Flag_LinearProblem = 1; // Will be updated below if necessary
-    If(MaterialType == 0)
-        Air += Region[ MATERIAL ];
+    If(MaterialType == 0) // Define the superconducting zones, but not treated as superconductor
+        Air += Region[ BULK_1 ];
+        For i In {1:Num_Super}
+    			DefineGroup [Cuboid_Superconductor~{i}];
+    			/* Super += Region[ BULK~{i} ];
+    			Cond += Region[{ BULK~{i} }]; */
+    			// Copper += Region[ BULK~{i} ];
+    			Cuboid_Superconductor~{i} = Region[ BULK~{i} ];
+    			Surface_Cuboid_Superconductor~{i} = Region[ Boundary_BULK~{i} ];
+    			Surface_Superconductors += Region[ Boundary_BULK~{i} ];
+    			/* BndOmegaC += Region[ Boundary_BULK~{i} ]; */
+    		EndFor
     ElseIf(MaterialType == 1)
 		For i In {1:Num_Super}
 			DefineGroup [Cuboid_Superconductor~{i}];
@@ -73,13 +83,24 @@ Group {
         IsThereSuper = 1;
         Flag_LinearProblem = 0;
     ElseIf(MaterialType == 2)
-        Copper += Region[ MATERIAL1 ];
-		Copper += Region[ MATERIAL2 ];
-		Bulk1 += Region[ MATERIAL1 ];
-		Bulk2 += Region[ MATERIAL2 ];
-        Cond1 += Region[ MATERIAL1 ];
-		Cond2 += Region[ MATERIAL2 ];
-        BndOmegaC += Region[ BND_MATERIAL ];
+    // Define the superconducting zones, but not treated as superconductor
+    For i In {1:Num_Super}
+			DefineGroup [Cuboid_Superconductor~{i}];
+			/* Super += Region[ BULK~{i} ];
+			Cond += Region[{ BULK~{i} }]; */
+			// Copper += Region[ BULK~{i} ];
+			Cuboid_Superconductor~{i} = Region[ BULK~{i} ];
+			Surface_Cuboid_Superconductor~{i} = Region[ Boundary_BULK~{i} ];
+			Surface_Superconductors += Region[ Boundary_BULK~{i} ];
+			/* BndOmegaC += Region[ Boundary_BULK~{i} ]; */
+		EndFor
+    Copper += Region[ BULK_1 ];
+		/* Copper += Region[ MATERIAL2 ]; */
+		Bulk1 += Region[ BULK_1 ];
+		/* Bulk2 += Region[ MATERIAL2 ]; */
+        Cond1 += Region[ BULK_1 ];
+		/* Cond2 += Region[ MATERIAL2 ]; */
+        BndOmegaC += Region[ Boundary_BULK_1 ];
     ElseIf(MaterialType == 3)
         FerroAnhy += Region[ MATERIAL ];
         IsThereFerro = 1;
@@ -222,21 +243,78 @@ Function{
     // Excitation - Source field or imposed current intensty
     // 0: sine, 1: triangle, 2: up-down-pause TFE , 3: step, 4: up-pause-down
 	If(Active_approach==0)
-		DefineConstant [Flag_Source = {2, Highlight "yellow", Choices{
-			1="Field Cooled (with current in Super)",
+		DefineConstant [Flag_Source = {5, Highlight "yellow", Choices{
+			1="Ini cond for Field Cooled (Ramp up and down)",
 			2="Magnetisation TFE",
-			3="No source => For modelling motion"}, Name "Input/4Source/0Source field type" }];
+			3="No source => For modelling motion",
+      4="Constant background field",
+      5="Ramp Down"}, Name "Input/4Source/0Source field type" }];
 	Else
-		DefineConstant [Flag_Source = {3, Visible 0, Highlight "yellow", Choices{
+		DefineConstant [Flag_Source = {4, Visible 0, Highlight "yellow", Choices{
 			1="Field Cooled (with current in Super)",
 			2="Magnetisation TFE",
-			3="No source => For modelling motion"}, Name "Input/4Source/0Source field type" }];
+			3="No source => For modelling motion",
+      4="Constant background field"}, Name "Input/4Source/0Source field type" }];
 	EndIf
+  mu0 = 4*Pi*1e-7; // [H/m]
+  nu0 = 1.0/mu0; // [m/H]
+  /* hmax = bmax / mu0; */
+If(Flag_Source == 1)
+      // Ramp Up and Down
+      bmax_m = 1.6;
+      bmin_m = 0.5;
+      controlTimeInstants = {1000*(bmax_m),  1000*((2*bmax_m)-bmin_m)};
+      rate = 0.001;
+      qttMax = bmax_m / mu0;
+      qttMin = bmin_m / mu0;
+      hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : qttMax - (($Time - 1600) * rate)/mu0 );
+      hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : qttMax - ((($Time-$DTime) - 1600) * rate)/mu0 );
+ElseIf(Flag_Source == 2)
+  // Source Big Blue Magnet with 45 min of Mag. Relax.
+  controlTimeInstants = {2400, 4800, timeFinal};
+  bmax_m = 2.4;
+  rate = bmax_m/2400;
+  qttMax = bmax_m / mu0;
+      hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 :
+                  ($Time * rate  > bmax_m && $Time * rate  <= 2*bmax_m) ?
+                  qttMax - (($Time - 2400) * rate)/mu0 : 0);
+      hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 :
+                  (($Time-$DTime) * rate  > bmax_m && ($Time-$DTime) * rate  <= 2*bmax_m) ?
+                  qttMax - ((($Time-$DTime) - 2400) * rate)/mu0  : 0);
+ElseIf(Flag_Source == 3)
+      // No source --> For movement
+      controlTimeInstants = {};
+      bmax_m = 0;
+      bmin_m = bmax_m;
+      rate = 0;
+      qttMax = 0;
+      hsVal[] = 0;
+      hsVal_prev[] = 0;
+  ElseIf(Flag_Source == 4)
+    // Constant Field Background field
+    controlTimeInstants = {};
+    bmax_m = 1.2;
+    bmin_m = bmax_m;
+    rate = 0;
+    qttMax = 0;
+    hsVal[] = bmax_m/ mu0;
+    hsVal_prev[] = bmax_m/ mu0;
+  ElseIf(Flag_Source == 5)
+          // Constant + Ramp Down
+          bmax_m = 1.5;
+          bmin_m = 0.3;
+          ConstantlvlDurantion = 30;
+          controlTimeInstants = {ConstantlvlDurantion/2,1000*(bmax_m-bmin_m)};
+          rate = 0.001;
+          qttMax = bmax_m / mu0;
+          hsVal[] = ($Time < ConstantlvlDurantion) ? qttMax : qttMax - ((($Time - ConstantlvlDurantion) * rate)/mu0);
+          hsVal_prev[] = (($Time-$DTime) < ConstantlvlDurantion) ? qttMax : qttMax - (((($Time-$DTime) - ConstantlvlDurantion) * rate)/mu0);
+  EndIf
     DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
     DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
     DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
     DefineConstant [timeStart = 0]; // Initial time [s]
-    DefineConstant [timeFinal = (Flag_Source == 1) ? 6000 : (Flag_Source == 2) ? 7500 : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : 3*partLength]; // Final time for source definition [s]
+    DefineConstant [timeFinal = (Flag_Source == 1) ? 1000*((2*bmax_m)-bmin_m) : (Flag_Source == 2) ? 7500 : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? 1000*(bmax_m-bmin_m) : 3*partLength]; // Final time for source definition [s]
     DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
     DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
     DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
@@ -291,43 +369,8 @@ Function{
     directionApplied[] = Vector[0., 0., 1.]; // y --> central ech, z --> peripheral ech
 	// directionApplied[] = Vector[0., 1/Sqrt[2], 1/Sqrt[2]];// Test
     DefineFunction [I, js, hsVal];
-    mu0 = 4*Pi*1e-7; // [H/m]
-    nu0 = 1.0/mu0; // [m/H]
-    hmax = bmax / mu0;
-    If(Flag_Source == 1)
-        // Modelling a Field cooled (but with current inside the superconductor)
-        controlTimeInstants = {3600, 6000};
-        bmax_m = 3.6;
-    		rate = bmax_m/3600;
-    		qttMax = bmax_m / mu0;
-            hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 :
-                        ($Time * rate  > bmax_m) ?
-                        qttMax - (($Time - 3600) * rate)/mu0);
-            hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 :
-                        (($Time-$DTime) * rate  > bmax_m?
-                        qttMax - ((($Time-$DTime) - 3600) * rate)/mu0 );
-	ElseIf(Flag_Source == 2)
-		// Source Big Blue Magnet with 45 min of Mag. Relax.
-		controlTimeInstants = {2400, 4800, timeFinal};
-		bmax_m = 2.4;
-		rate = bmax_m/2400;
-		qttMax = bmax_m / mu0;
-        hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 :
-                    ($Time * rate  > bmax_m && $Time * rate  <= 2*bmax_m) ?
-                    qttMax - (($Time - 2400) * rate)/mu0 : 0);
-        hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 :
-                    (($Time-$DTime) * rate  > bmax_m && ($Time-$DTime) * rate  <= 2*bmax_m) ?
-                    qttMax - ((($Time-$DTime) - 2400) * rate)/mu0  : 0);
-	ElseIf(Flag_Source == 3)
-        // No source --> For movement
-        controlTimeInstants = {timeFinalSimu, timeFinal};
-        rate = 0;
-		    qttMax = 0;
-        hsVal[] = 0;
-        hsVal_prev[] = 0;
-    EndIf
 
-	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\Getdp\RotatingSuperconductor";
+	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\RotatingSuperconductors";
   Str_LcCube = "7";
   Velocity[] = Vector[0,0,0];
 
@@ -338,13 +381,11 @@ Function{
 	If(Time_step==1) // First step
 		// For projection
 			//************ Initial condition File Depending on the considered modelled samples ****************//
-      /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_CentralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\hfield_CentralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Central */
-      /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\afield_CentralEch_LcCube_0_00035.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\hfield_CentralEch_LcCube_0_00035.pos"]];	// Central */
-      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\a_NbelemCube6.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\ST\h_NbelemCube6.pos"]];	// Central
+      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FCwithoutJc\a1500Background.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FCwithoutJc\h1500Background.pos"]];	// Central
 
+      /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FC_JinBulk\a_Fc_3_6Max_1_2Min.pos"]];	// Central */
+      /* DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FC_JinBulk\h_Fc_3_6Max_1_2Min.pos"]];	// Central */
 				// Read a from File
 				GmshRead[ initialConditionFile_a1,1];
 
@@ -352,8 +393,13 @@ Function{
 				GmshRead[ initialConditionFile_h1,4];
 
         // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
-        a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
-				h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{4};
+        If(FlagFCNoCurrent)
+            a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
+            h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*Vector[0,0,1.2/mu0];
+        Else
+            a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
+				    h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{4};
+        EndIf
 	Else	// All other steps
         //************ Initial condition File Depending on the considered modelled samples ****************//
         DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\Last_computed_a.pos"]];	// Central
@@ -375,8 +421,8 @@ Function{
 Constraint {
     { Name a ;
         Case {
-			If(Active_approach == 1)
-				{Region SurfOut ; Value 0; }
+			If(Active_approach == 1 && Flag_Source == 3)
+				{Region SurfOut ; Value 0; } // Comp normal de B à 0 (je crois)
 			EndIf
 			If(((formulation == a_formulation)&& (Active_approach==1|| Active_approach == 2)))
 				{ Region Omega ; Type InitFromResolution ; NameOfResolution ProjectionInit ; }
@@ -437,6 +483,9 @@ PostOperation {
 					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
 					Print[ a, OnElementsOf Omega_a, File StrCat["Last_computed_a", ExtGmsh],Format Gmsh,
 					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+          Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+          Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+
           If(Active_approach==1)
             Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
   					Print[ h, OnElementsOf Omega_h, File StrCat["res/For_Matlab/Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;

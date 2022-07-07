@@ -7,7 +7,7 @@ R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-DefineConstant [NbElemCube = 6]; // Mesh size in superconductors [m]
+DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
 DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m]
 
 // ---- Formulation definitions (dummy values) ----
@@ -93,33 +93,34 @@ EndIf
 
 //Inputs
 DefineConstant[
-  Active_approach = {1, Choices{
+  Active_approach = {0, Choices{
         0="0 : No Rotation: Initial condition",
         1="1 : Rotation then stop",
         2="2 : Rotation + Flux creep"}
 		, Name "zBulks Motion/Input/0Model Rotation?", Visible 1}
 ];
 
-Active_approach = 0;
 Flag_Mvt_hformulation = 0;
 Approach_cycle_nb = 1;
 
-DefineConstant[ ThetaMax = {Pi, Name "zBulks Rotation/Input/1Maximum Value of the rotation angle", Visible 1}];
-DefineConstant[ Time_step_per_cycle = {10, Name "zBulks Motion/Input/2Time step per cycle", Visible Active_approach }];
+DefineConstant[ ThetaMax = {2*Pi, Name "zBulks Rotation/Input/1Maximum Value of the rotation angle", Visible 1}];
+DefineConstant[ Time_step_per_cycle = {40, Name "zBulks Motion/Input/2Time step per cycle", Visible Active_approach }];
 DefineConstant[ Rotation_Speed = { Pi/100 , Name "zBulks Motion/Input/3Rotation speed [Rad/s]", Visible Active_approach }];
 DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Name "zBulks Motion/Input/4Time step duration during motion[s]", Visible Active_approach }];
 DefineConstant[ Flag_Test_projection = {0, Name "zBulks Motion/Input/5Test Projection"}];
 DefineConstant [Flag_JcB = {0, Name "Input/3Material Properties/6Jc(B) dependence?"}];
+DefineConstant [FlagFCNoCurrent = {1, Name "Input/3Material Properties/7Model FC without current?"}];
+
 
 // Informations for the user
 DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Step 1, Loop  2, Name "zBulks Motion/Real time information/1Time step number", Visible Active_approach}];
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Step 1, Loop  1, Name "zBulks Motion/Real time information/2Current cycle ", Visible Active_approach}];
-DefineConstant[ dTheta = {Rotation_Speed*Time_step_amplitude, Name "zBulks Motion/Real time information/4Increment angle", Visible 1}];
+DefineConstant[ dTheta = {(Active_approach == 0) ? 0 : Rotation_Speed*Time_step_amplitude, Name "zBulks Motion/Real time information/4Increment angle", Visible 1}];
 MyTheta = dTheta*Time_step;
 
 
 // Sensor experimental position
-If(Modelled_Samples == 1 ||Modelled_Samples == 2)
+If(Modelled_Samples == 1 || Modelled_Samples == 2)
 	DFromSurf = 0.001;
 Else
 	DFromSurf = 0.0015;
