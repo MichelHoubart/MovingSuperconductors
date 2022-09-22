@@ -17,10 +17,11 @@ coupled_formulation = 5;
 
 // ---- Parameters of the configuration ----
 DefineConstant[
-  Modelled_Samples = {1, Choices{
+  Modelled_Samples = {4, Choices{
         1="1 : Qualitative bulk",
         2="2 : Real Bulks",
-        3="3 : Stacked Tapes"}
+        3="3 : Stacked Tapes",
+        4="4 : Bulk WP2"}
 		, Name "Parameters of the array/1Type of sample to consider"}
 ];
 DefineConstant[
@@ -43,20 +44,25 @@ ElseIf(Modelled_Samples == 3)
 		// Model Stacked tapes
 		Config_Base_1 = 123456789;
 		Config_Base_2 = 123456789;
+    ElseIf(Modelled_Samples == 4)
+    		// Model Stacked tapes
+    		Config_Base_1 = 222;
+    		Config_Base_2 = 222;
 EndIf
 	For i In {1:Num_Super}
 		DefineConstant[ Sample~{i} = {Config_Base~{i}, Choices{
         1216,
         1218,
         1219,
-		1220,
-		1222,
-		1215,
-		1217,
-		1221,
-		1223,
-		123456789,
-		666},
+		    1220,
+		    1222,
+		    1215,
+		    1217,
+		    1221,
+	    	1223,
+		    123456789,
+		    666,
+        222},
 	Name Sprintf("Parameters of the configuration/5Sample%g Number", i), Visible 1}];
 	EndFor
 
@@ -109,7 +115,7 @@ DefineConstant[ Rotation_Speed = { Pi/100 , Name "zBulks Motion/Input/3Rotation 
 DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Name "zBulks Motion/Input/4Time step duration during motion[s]", Visible Active_approach }];
 DefineConstant[ Flag_Test_projection = {0, Name "zBulks Motion/Input/5Test Projection"}];
 DefineConstant [Flag_JcB = {0, Name "Input/3Material Properties/6Jc(B) dependence?"}];
-DefineConstant [FlagFCNoCurrent = {1, Name "Input/3Material Properties/7Model FC without current?"}];
+DefineConstant [FlagFCNoCurrent = {0, Name "Input/3Material Properties/7Model FC without current?"}];
 
 
 // Informations for the user
@@ -120,7 +126,7 @@ MyTheta = dTheta*Time_step;
 
 
 // Sensor experimental position
-If(Modelled_Samples == 1 || Modelled_Samples == 2)
+If(Modelled_Samples == 1 || Modelled_Samples == 2 || Modelled_Samples == 4)
 	DFromSurf = 0.001;
 Else
 	DFromSurf = 0.0015;

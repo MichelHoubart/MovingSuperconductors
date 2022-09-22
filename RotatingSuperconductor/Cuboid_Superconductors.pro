@@ -133,28 +133,19 @@ Function{
     // ------- PARAMETERS -------
     // Superconductor parameters
     DefineConstant [ec = 1e-4]; // Critical electric field [V/m]
+    If(Modelled_Samples==1)
+      jc_Base_1 = 2.2977*1.2051*0.9438*1e8;
+      jc_Base_2 = 2.2977*1.2051*0.9438*1e8;
+    ElseIf(Modelled_Samples == 3)
+      jc_Base_1 = 1.5312*1.0833*1.05*1e8;
+      jc_Base_2 = (1.5312*1.0833*1.05)*1e8;
+    ElseIf(Modelled_Samples == 4)
+        jc_Base_1 = 2*1e8;
+        jc_Base_2 = 2*1e8;
+    EndIf
+    n_Base_1 = 20;
+    n_Base_2 = 20;
 	For i In {1:Num_Super} // Full real Bulk: 2.2977 Stacked Tapes : 1.5312*1.0833*1.05*1e8 (Adjusted after Bobine Zoubir) Qualitative Bulk(2.2977*1.2051*0.9438*1e8) ||| Cutted Sample: 3.1786*1e8
-		If(Modelled_Samples==1)
-			jc_Base_1 = 2.2977*1.2051*0.9438*1e8;
-			jc_Base_2 = 2.2977*1.2051*0.9438*1e8;
-			jc_Base_3 = 2.2977*1.2051*0.9438*1e8;
-			jc_Base_4 = 2.2977*1.2051*0.9438*1e8;
-			jc_Base_5 = 2.2977*1.2051 *0.9438*1e8;
-			jc_Base_6 = 3.1786*1e8;
-		ElseIf(Modelled_Samples == 3)
-			jc_Base_1 = 1.5312*1.0833*1.05*1e8;
-			jc_Base_2 = (1.5312*1.0833*1.05)*1e8;
-			jc_Base_3 = 1.5312*1.0833*1.05*1e8;
-			jc_Base_4 = 3.1786*1e8;
-			jc_Base_5 = 2.2977*1e8;
-			jc_Base_6 = 3.1786*1e8;
-		EndIf
-		n_Base_1 = 20;
-		n_Base_2 = 20;
-		n_Base_3 = 20;
-		n_Base_4 = 20;
-		n_Base_5 = 20;
-		n_Base_6 = 20;
 		DefineConstant[ jc~{i} = {jc_Base~{i}, Name Sprintf("Input/3Material Properties/2jc Sample%g (Am⁻²)",i), Visible 1}]; // Critical current density [A/m2]
 		DefineConstant [n~{i} = {n_Base~{i}, Name Sprintf("Input/3Material Properties/1n Sample%g(-)",i)}];	// Superconductor exponent (n) value [-]
 		jc[Cuboid_Superconductor~{i}] = jc~{i};
@@ -178,7 +169,7 @@ Function{
 				2="2 : y",  // Central sample
 				3="3 : z"}, // Peripheral sample
 			Name Sprintf("Input/3Material Properties/3C-axis Sample1 Number"), Visible 1}];
-	ElseIf(Num_Super == 2)
+	Else
 		C_Axis_Base_1 = 2;
 		C_Axis_Base_2 = 0;
 		For i In {1:Num_Super}
@@ -187,20 +178,6 @@ Function{
 				2="2 : y",
 				3="3 : z",
 				0="No Anisotropy"},
-			Name Sprintf("Input/3Material Properties/3C-axis Sample%g Number", i), Visible 1}];
-		EndFor
-	Else
-		C_Axis_Base_1 = 3;
-		C_Axis_Base_2 = 2;
-		C_Axis_Base_3 = 3;
-		C_Axis_Base_4 = 0;
-		C_Axis_Base_5 = 2;
-		C_Axis_Base_6 = 2;
-		For i In {1:Num_Super}
-			DefineConstant[ C_Axis~{i} = {C_Axis_Base~{i}, Choices{
-				1="1 : x",
-				2="2 : y",
-				3="3 : z"},
 			Name Sprintf("Input/3Material Properties/3C-axis Sample%g Number", i), Visible 1}];
 		EndFor
 	EndIf
@@ -243,44 +220,44 @@ Function{
     // Excitation - Source field or imposed current intensty
     // 0: sine, 1: triangle, 2: up-down-pause TFE , 3: step, 4: up-pause-down
 	If(Active_approach==0)
-		DefineConstant [Flag_Source = {5, Highlight "yellow", Choices{
+		DefineConstant [Flag_Source = {2, Highlight "yellow", Choices{
 			1="Ini cond for Field Cooled (Ramp up and down)",
-			2="Magnetisation TFE",
+			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
       4="Constant background field",
       5="Ramp Down"}, Name "Input/4Source/0Source field type" }];
 	Else
 		DefineConstant [Flag_Source = {4, Visible 0, Highlight "yellow", Choices{
 			1="Field Cooled (with current in Super)",
-			2="Magnetisation TFE",
+			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
       4="Constant background field"}, Name "Input/4Source/0Source field type" }];
 	EndIf
   mu0 = 4*Pi*1e-7; // [H/m]
   nu0 = 1.0/mu0; // [m/H]
   /* hmax = bmax / mu0; */
+  MagRelaxPeriod = 2700; // Not useful for all source type.
+  ConstantlvlDurantion = 30;  // Not useful for all source type.
 If(Flag_Source == 1)
       // Ramp Up and Down
       bmax_m = 1.6;
       bmin_m = 0.5;
-      controlTimeInstants = {1000*(bmax_m),  1000*((2*bmax_m)-bmin_m)};
       rate = 0.001;
+      controlTimeInstants = {(bmax_m)/rate, ((2*bmax_m)-bmin_m)/rate};
       qttMax = bmax_m / mu0;
       qttMin = bmin_m / mu0;
-      hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : qttMax - (($Time - 1600) * rate)/mu0 );
-      hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : qttMax - ((($Time-$DTime) - 1600) * rate)/mu0 );
+      hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : qttMax - (($Time - (bmax_m/rate))) * rate/mu0 );
+      hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : qttMax - ((($Time-$DTime) - (bmax_m/rate)) * rate)/mu0 );
 ElseIf(Flag_Source == 2)
   // Source Big Blue Magnet with 45 min of Mag. Relax.
-  controlTimeInstants = {2400, 4800, timeFinal};
+  rate = 0.001;
   bmax_m = 2.4;
-  rate = bmax_m/2400;
+  bmin_m = 0;
+  controlTimeInstants = {(bmax_m)/rate, ((2*bmax_m)-bmin_m)/rate, (((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod};
   qttMax = bmax_m / mu0;
-      hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 :
-                  ($Time * rate  > bmax_m && $Time * rate  <= 2*bmax_m) ?
-                  qttMax - (($Time - 2400) * rate)/mu0 : 0);
-      hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 :
-                  (($Time-$DTime) * rate  > bmax_m && ($Time-$DTime) * rate  <= 2*bmax_m) ?
-                  qttMax - ((($Time-$DTime) - 2400) * rate)/mu0  : 0);
+  qttMin = bmin_m / mu0;
+  hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : ($Time * rate <= (2*bmax_m)-bmin_m) ? qttMax - (($Time - (bmax_m/rate)) * rate)/mu0 : 0);
+  hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : (($Time-$DTime) * rate<=(2*bmax_m)-bmin_m) ? qttMax - ((($Time-$DTime) - (bmax_m/rate)) * rate)/mu0 : 0);
 ElseIf(Flag_Source == 3)
       // No source --> For movement
       controlTimeInstants = {};
@@ -303,9 +280,8 @@ ElseIf(Flag_Source == 3)
           // Constant + Ramp Down
           bmax_m = 1.5;
           bmin_m = 0.3;
-          ConstantlvlDurantion = 30;
-          controlTimeInstants = {ConstantlvlDurantion/2,1000*(bmax_m-bmin_m)};
           rate = 0.001;
+          controlTimeInstants = {ConstantlvlDurantion/2,ConstantlvlDurantion+((bmax_m-bmin_m)/rate)};
           qttMax = bmax_m / mu0;
           hsVal[] = ($Time < ConstantlvlDurantion) ? qttMax : qttMax - ((($Time - ConstantlvlDurantion) * rate)/mu0);
           hsVal_prev[] = (($Time-$DTime) < ConstantlvlDurantion) ? qttMax : qttMax - (((($Time-$DTime) - ConstantlvlDurantion) * rate)/mu0);
@@ -314,7 +290,7 @@ ElseIf(Flag_Source == 3)
     DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
     DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
     DefineConstant [timeStart = 0]; // Initial time [s]
-    DefineConstant [timeFinal = (Flag_Source == 1) ? 1000*((2*bmax_m)-bmin_m) : (Flag_Source == 2) ? 7500 : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? ConstantlvlDurantion+1000*(bmax_m-bmin_m) : 3*partLength]; // Final time for source definition [s]
+    DefineConstant [timeFinal = (Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : (Flag_Source == 2) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : 3*partLength]; // Final time for source definition [s]
     DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
     DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
     DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
@@ -381,11 +357,11 @@ ElseIf(Flag_Source == 3)
 	If(Time_step==1) // First step
 		// For projection
 			//************ Initial condition File Depending on the considered modelled samples ****************//
-      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FCwithoutJc\a1500Background.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FCwithoutJc\h1500Background.pos"]];	// Central
+      /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FCwithoutJc\a1500Background.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FCwithoutJc\h1500Background.pos"]];	// Central */
 
-      /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FC_JinBulk\a_Fc_3_6Max_1_2Min.pos"]];	// Central */
-      /* DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FC_JinBulk\h_Fc_3_6Max_1_2Min.pos"]];	// Central */
+      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FC_JinBulk\NoFluxCreep\a_Fc_3_6Max_1_2Min.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FC_JinBulk\NoFluxCreep\h_Fc_3_6Max_1_2Min.pos"]];	// Central
 				// Read a from File
 				GmshRead[ initialConditionFile_a1,1];
 
