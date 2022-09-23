@@ -251,13 +251,13 @@ If(Flag_Source == 1)
 ElseIf(Flag_Source == 2)
   // Source Big Blue Magnet with 45 min of Mag. Relax.
   rate = 0.001;
-  bmax_m = 2.4;
-  bmin_m = 0;
+  bmax_m = 2.7;
+  bmin_m = 0.3;
   controlTimeInstants = {(bmax_m)/rate, ((2*bmax_m)-bmin_m)/rate, (((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod};
   qttMax = bmax_m / mu0;
   qttMin = bmin_m / mu0;
-  hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : ($Time * rate <= (2*bmax_m)-bmin_m) ? qttMax - (($Time - (bmax_m/rate)) * rate)/mu0 : 0);
-  hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : (($Time-$DTime) * rate<=(2*bmax_m)-bmin_m) ? qttMax - ((($Time-$DTime) - (bmax_m/rate)) * rate)/mu0 : 0);
+  hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : ($Time * rate <= (2*bmax_m)-bmin_m) ? qttMax - (($Time - (bmax_m/rate)) * rate)/mu0 : bmin_m);
+  hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : (($Time-$DTime) * rate<=(2*bmax_m)-bmin_m) ? qttMax - ((($Time-$DTime) - (bmax_m/rate)) * rate)/mu0 : bmin_m);
 ElseIf(Flag_Source == 3)
       // No source --> For movement
       controlTimeInstants = {};
