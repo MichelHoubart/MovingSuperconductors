@@ -26,7 +26,7 @@ Group {
     Axisymmetry = 0;
     // Other constants
     nonlinferro = 0;
-    Flag_CTI = 0;
+    Flag_CTI = 1;
     Flag_MB = 0;
     Flag_rotating = Flag_MB;
     // Test name - for output files
@@ -288,7 +288,7 @@ ElseIf(Flag_Source == 3)
     hsVal_prev[] = (($Time-$DTime) < ConstantlvlDurantion) ? qttMax : qttMax - (((($Time-$DTime) - ConstantlvlDurantion) * rate)/mu0);
   ElseIf(Flag_Source == 6)
     // Rotating field    /!\ FlagFCNoCurrent should be 1 and proper IC required for convergence.
-    controlTimeInstants = {(ThetaMax/Rotation_Speed)};
+    controlTimeInstants = {(ThetaMax/Rotation_Speed)/2,(ThetaMax/Rotation_Speed)};
     bmax_m = 0.3;
     bmin_m = bmax_m;
     rate = 0;
@@ -300,7 +300,7 @@ ElseIf(Flag_Source == 3)
     DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
     DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
     DefineConstant [timeStart = 0]; // Initial time [s]
-    DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : (Flag_Source == 2) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Name "Method/Final Time"}]; // Final time for source definition [s]
+    DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : (Flag_Source == 2) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Name "Input/5Method/Final Time"}]; // Final time for source definition [s]
     DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
     DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
     DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
