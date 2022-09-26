@@ -54,6 +54,11 @@ ax_666 = 0.014;
 ay_666 = 0.014;
 az_666 = 0.014; // Dimension along the c-axis
 
+// Bulk for WP2
+ax_222 = 0.006;
+ay_222 = 0.006;
+az_222 = 0.006; // Dimension along the c-axis
+
 // Fourth sample
 ax_6664 = 0.014;
 ay_6664 = 0.005;

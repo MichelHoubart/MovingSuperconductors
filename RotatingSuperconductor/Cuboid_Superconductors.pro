@@ -220,12 +220,13 @@ Function{
     // Excitation - Source field or imposed current intensty
     // 0: sine, 1: triangle, 2: up-down-pause TFE , 3: step, 4: up-pause-down
 	If(Active_approach==0)
-		DefineConstant [Flag_Source = {2, Highlight "yellow", Choices{
+		DefineConstant [Flag_Source = {6, Highlight "yellow", Choices{
 			1="Ini cond for Field Cooled (Ramp up and down)",
 			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
       4="Constant background field",
-      5="Ramp Down"}, Name "Input/4Source/0Source field type" }];
+      5="Ramp Down",
+      6="Rotating field"}, Name "Input/4Source/0Source field type" }];
 	Else
 		DefineConstant [Flag_Source = {4, Visible 0, Highlight "yellow", Choices{
 			1="Field Cooled (with current in Super)",
@@ -256,8 +257,8 @@ ElseIf(Flag_Source == 2)
   controlTimeInstants = {(bmax_m)/rate, ((2*bmax_m)-bmin_m)/rate, (((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod};
   qttMax = bmax_m / mu0;
   qttMin = bmin_m / mu0;
-  hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : ($Time * rate <= (2*bmax_m)-bmin_m) ? qttMax - (($Time - (bmax_m/rate)) * rate)/mu0 : bmin_m);
-  hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : (($Time-$DTime) * rate<=(2*bmax_m)-bmin_m) ? qttMax - ((($Time-$DTime) - (bmax_m/rate)) * rate)/mu0 : bmin_m);
+  hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : ($Time * rate <= (2*bmax_m)-bmin_m) ? qttMax - (($Time - (bmax_m/rate)) * rate)/mu0 : bmin_m/ mu0);
+  hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : (($Time-$DTime) * rate <= (2*bmax_m)-bmin_m) ? qttMax - ((($Time-$DTime) - (bmax_m/rate)) * rate)/mu0 : bmin_m/mu0);
 ElseIf(Flag_Source == 3)
       // No source --> For movement
       controlTimeInstants = {};
@@ -277,20 +278,29 @@ ElseIf(Flag_Source == 3)
     hsVal[] = bmax_m/ mu0;
     hsVal_prev[] = bmax_m/ mu0;
   ElseIf(Flag_Source == 5)
-          // Constant + Ramp Down
-          bmax_m = 1.5;
-          bmin_m = 0.3;
-          rate = 0.001;
-          controlTimeInstants = {ConstantlvlDurantion/2,ConstantlvlDurantion+((bmax_m-bmin_m)/rate)};
-          qttMax = bmax_m / mu0;
-          hsVal[] = ($Time < ConstantlvlDurantion) ? qttMax : qttMax - ((($Time - ConstantlvlDurantion) * rate)/mu0);
-          hsVal_prev[] = (($Time-$DTime) < ConstantlvlDurantion) ? qttMax : qttMax - (((($Time-$DTime) - ConstantlvlDurantion) * rate)/mu0);
+    // Constant + Ramp Down
+    bmax_m = 1.5;
+    bmin_m = 0.3;
+    rate = 0.001;
+    controlTimeInstants = {ConstantlvlDurantion/2,ConstantlvlDurantion+((bmax_m-bmin_m)/rate)};
+    qttMax = bmax_m / mu0;
+    hsVal[] = ($Time < ConstantlvlDurantion) ? qttMax : qttMax - ((($Time - ConstantlvlDurantion) * rate)/mu0);
+    hsVal_prev[] = (($Time-$DTime) < ConstantlvlDurantion) ? qttMax : qttMax - (((($Time-$DTime) - ConstantlvlDurantion) * rate)/mu0);
+  ElseIf(Flag_Source == 6)
+    // Rotating field    /!\ FlagFCNoCurrent should be 1 and proper IC required for convergence.
+    controlTimeInstants = {(ThetaMax/Rotation_Speed)};
+    bmax_m = 0.3;
+    bmin_m = bmax_m;
+    rate = 0;
+    qttMax = 0;
+    hsVal[] = bmax_m/ mu0;
+    hsVal_prev[] = bmax_m/ mu0;
   EndIf
     DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
     DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
     DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
     DefineConstant [timeStart = 0]; // Initial time [s]
-    DefineConstant [timeFinal = (Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : (Flag_Source == 2) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : 3*partLength]; // Final time for source definition [s]
+    DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : (Flag_Source == 2) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Name "Method/Final Time"}]; // Final time for source definition [s]
     DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
     DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
     DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
@@ -342,8 +352,12 @@ ElseIf(Flag_Source == 3)
 	Hall_sensor5 = {0.01, 0 ,az~{Sample_1}/2 + 0.0005};
 
     // Direction of applied field
-    directionApplied[] = Vector[0., 0., 1.]; // y --> central ech, z --> peripheral ech
-	// directionApplied[] = Vector[0., 1/Sqrt[2], 1/Sqrt[2]];// Test
+    If(Flag_Source == 6)
+        directionApplied[] = MatRot[($Time)*Rotation_Speed]*Vector[0., 0., 1.];
+    Else
+      directionApplied[] = Vector[0., 0., 1.];
+    EndIf
+  // directionApplied[] = Vector[0., 1/Sqrt[2], 1/Sqrt[2]];// Test
     DefineFunction [I, js, hsVal];
 
 	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\RotatingSuperconductors";
@@ -370,7 +384,7 @@ ElseIf(Flag_Source == 3)
 
         // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
         If(FlagFCNoCurrent)
-            a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
+            a_fromFile[Surface_Cuboid_Superconductor_1] = C*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
             h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*Vector[0,0,1.2/mu0];
         Else
             a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};

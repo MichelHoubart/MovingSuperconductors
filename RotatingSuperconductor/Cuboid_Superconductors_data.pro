@@ -7,8 +7,10 @@ R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
-DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m]
+/* DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
+DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m] */
+DefineConstant [NbElemCube = 3]; // Mesh size in superconductors [m]
+DefineConstant [LcAir = meshMult*0.01]; // Mesh size away from superconductors [m]
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
