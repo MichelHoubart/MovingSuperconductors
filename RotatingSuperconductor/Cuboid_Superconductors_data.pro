@@ -7,10 +7,12 @@ R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-/* DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
-DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m] */
-DefineConstant [NbElemCube = 3]; // Mesh size in superconductors [m]
-DefineConstant [LcAir = meshMult*0.01]; // Mesh size away from superconductors [m]
+DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
+DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m]
+
+//  Ideal value for the mesh:
+/* DefineConstant [NbElemCube = 3]; // Mesh size in superconductors [m]
+DefineConstant [LcAir = meshMult*0.01]; // Mesh size away from superconductors [m] */
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
@@ -19,19 +21,19 @@ coupled_formulation = 5;
 
 // ---- Parameters of the configuration ----
 DefineConstant[
-  Modelled_Samples = {4, Choices{
+  Modelled_Samples = {4, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
         2="2 : Real Bulks",
         3="3 : Stacked Tapes",
         4="4 : Bulk WP2"}
-		, Name "Parameters of the array/1Type of sample to consider"}
+		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ];
 DefineConstant[
-  Num_Super = {1, Choices{
+  Num_Super = {1, Highlight "Red", Choices{
         1="1 : Single superconductor in field",
         2="2 : Pair of superconductors in field"
       }
-		, Name "Parameters of the configuration/2Number of superconductors"}
+		, Name "2Parameters of the configuration/2Number of superconductors"}
 ];
 
 If(Modelled_Samples == 1)
@@ -52,7 +54,7 @@ ElseIf(Modelled_Samples == 3)
     		Config_Base_2 = 222;
 EndIf
 	For i In {1:Num_Super}
-		DefineConstant[ Sample~{i} = {Config_Base~{i}, Choices{
+		DefineConstant[ Sample~{i} = {Config_Base~{i}, Highlight "Red", Choices{
         1216,
         1218,
         1219,
@@ -65,7 +67,7 @@ EndIf
 		    123456789,
 		    666,
         222},
-	Name Sprintf("Parameters of the configuration/5Sample%g Number", i), Visible 1}];
+	Name Sprintf("2Parameters of the configuration/3Sample%g Number", i), Visible 1}];
 	EndFor
 
 // ---- Rotation of the bulk ----
@@ -101,29 +103,29 @@ EndIf
 
 //Inputs
 DefineConstant[
-  Active_approach = {0, Choices{
+  Active_approach = {1, Highlight "LightYellow", Choices{
         0="0 : No Rotation: Initial condition",
         1="1 : Rotation then stop",
         2="2 : Rotation + Flux creep"}
-		, Name "zBulks Motion/Input/0Model Rotation?", Visible 1}
+		, Name "3Bulks Rotation/Input/0Model Rotation?", Visible 1}
 ];
 
-Flag_Mvt_hformulation = 0;
+Flag_Mvt_hformulation = 0;  // Only used for h-formulation --> not ideal for moving super
 Approach_cycle_nb = 1;
 
-DefineConstant[ ThetaMax = {2*Pi, Name "zBulks Rotation/Input/1Maximum Value of the rotation angle", Visible 1}];
-DefineConstant[ Time_step_per_cycle = {40, Name "zBulks Motion/Input/2Time step per cycle", Visible Active_approach }];
-DefineConstant[ Rotation_Speed = { Pi/100 , Name "zBulks Motion/Input/3Rotation speed [Rad/s]", Visible Active_approach }];
-DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Name "zBulks Motion/Input/4Time step duration during motion[s]", Visible Active_approach }];
-DefineConstant[ Flag_Test_projection = {0, Name "zBulks Motion/Input/5Test Projection"}];
-DefineConstant [Flag_JcB = {0, Name "Input/3Material Properties/6Jc(B) dependence?"}];
-DefineConstant [FlagFCNoCurrent = {0, Name "Input/3Material Properties/7Model FC without current?"}];
+DefineConstant[ ThetaMax = {2*Pi, Highlight "LightYellow", Name "3Bulks Rotation/Input/1Maximum Value of the rotation angle", Visible 1}];
+DefineConstant[ Time_step_per_cycle = {40, Highlight "LightYellow", Name "3Bulks Rotation/Input/2Time step per cycle", Visible Active_approach }];
+DefineConstant[ Rotation_Speed = { Pi/100, Highlight "LightYellow" , Name "3Bulks Rotation/Input/3Rotation speed [Rad.s-1]", Visible Active_approach }];
+DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Highlight "LightYellow", Name "3Bulks Rotation/Input/4Time step duration during motion[s]", Visible Active_approach }];
+DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks Rotation/Input/5Test Projection"}];
+DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Properties/6Jc(B) dependence?"}];
+DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 
 
 // Informations for the user
-DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Step 1, Loop  2, Name "zBulks Motion/Real time information/1Time step number", Visible Active_approach}];
-DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Step 1, Loop  1, Name "zBulks Motion/Real time information/2Current cycle ", Visible Active_approach}];
-DefineConstant[ dTheta = {(Active_approach == 0) ? 0 : Rotation_Speed*Time_step_amplitude, Name "zBulks Motion/Real time information/4Increment angle", Visible 1}];
+DefineConstant[ Time_step = {12, Min 12, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];
+DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Highlight "Purple", Step 1, Loop  1, Name "3Bulks Rotation/4Real time information/2Current cycle ", Visible Active_approach}];
+DefineConstant[ dTheta = {(Active_approach == 0) ? 0 : Rotation_Speed*Time_step_amplitude, Highlight "Purple", Name "3Bulks Rotation/4Real time information/4Increment angle", Visible 1}];
 MyTheta = dTheta*Time_step;
 
 
@@ -135,7 +137,7 @@ Else
 EndIf
 
 // ---- Saving Files for Matlab post-processing? ----
-DefineConstant[ Save_later = {1, Name "Input/5Save for Matlab?", Visible 1 }];
+DefineConstant[ Save_later = {1, Highlight "LightBlue", Name "1Input/5Save for Matlab?", Visible 1 }];
 
 // Air volume
 Air_Lx = 0;
