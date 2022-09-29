@@ -29,7 +29,7 @@ DefineConstant[
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ];
 DefineConstant[
-  Num_Super = {1, Highlight "Red", Choices{
+  Num_Super = {2, Highlight "Red", Choices{
         1="1 : Single superconductor in field",
         2="2 : Pair of superconductors in field"
       }
@@ -104,7 +104,7 @@ EndIf
 
 //Inputs
 DefineConstant[
-  Active_approach = {1, Highlight "LightYellow", Choices{
+  Active_approach = {0, Highlight "LightYellow", Choices{
         0="0 : No Rotation: Initial condition",
         1="1 : Rotation then stop",
         2="2 : Rotation + Flux creep"}
@@ -124,7 +124,7 @@ DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Mate
 
 
 // Informations for the user
-DefineConstant[ Time_step = {18, Min 18, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];
+DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Highlight "Purple", Step 1, Loop  1, Name "3Bulks Rotation/4Real time information/2Current cycle ", Visible Active_approach}];
 DefineConstant[ dTheta = {(Active_approach == 0) ? 0 : Rotation_Speed*Time_step_amplitude, Highlight "Purple", Name "3Bulks Rotation/4Real time information/4Increment angle", Visible 1}];
 MyTheta_1 = dTheta*Time_step;

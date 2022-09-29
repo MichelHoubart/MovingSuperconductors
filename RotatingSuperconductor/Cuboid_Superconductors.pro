@@ -223,7 +223,7 @@ Function{
 
   // ------- Constants -------
 	If(Active_approach==0)
-		DefineConstant [Flag_Source = {6, Highlight "yellow", Choices{
+		DefineConstant [Flag_Source = {2, Highlight "yellow", Choices{
 			1="Ramp up and down",
 			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
@@ -300,8 +300,7 @@ Function{
   DefineFunction [I, js, hsVal];
 
  // ------- PROJECTION PARAMETERS -------
-	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\GetdpDev\RotatingSuperconductor";
-  Str_LcCube = "7";
+	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\RotatingSuperconductors";
   Velocity[] = Vector[0,0,0];
 
   For i In {1:Num_Super}
@@ -326,6 +325,11 @@ Function{
       Else
           a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
 			    h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{4};
+          // Cleaner version to be done!
+          If(Num_Super==2)
+              a_fromFile[Surface_Cuboid_Superconductor_2] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
+              h_fromFile[Cuboid_Superconductor_2] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{4};
+          EndIf
       EndIf
 	Else	// All other steps
         //************ Initial condition File Depending on the considered modelled samples ****************//
@@ -338,10 +342,12 @@ Function{
 			// Read h from file
 			GmshRead[ initialConditionFile_h1,4];
 
+      For i In {1:Num_Super}
       // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
-      a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])+CentreSuperconductor_1[]]{1};
-			h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])+CentreSuperconductor_1[]]{4};
-	EndIf
+      a_fromFile[Surface_Cuboid_Superconductor~{i}] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{1};
+			h_fromFile[Cuboid_Superconductor~{i}] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{4};
+      EndFor
+  EndIf
 }
 
 // Only external field is implemented
