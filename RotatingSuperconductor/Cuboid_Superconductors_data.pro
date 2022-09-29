@@ -72,6 +72,7 @@ EndIf
 
 // ---- Rotation of the bulk ----
 // Position of the centre of each BULK
+DefineConstant[ SeparatingDistance = {0.015, Highlight "LightYellow", Name "3Bulks Rotation/Input/5Separating distance"}];
 If(Num_Super==1)
   CentreXSuperconductor_1 = 0.00;
   CentreYSuperconductor_1 = 0.00;
@@ -85,11 +86,11 @@ If(Num_Super==1)
 ElseIf(Num_Super==2)
   CentreXSuperconductor_1 = 0;
   CentreYSuperconductor_1 = 0;
-  CentreZSuperconductor_1 = 0;
+  CentreZSuperconductor_1 = az~{Sample~{1}}/2+SeparatingDistance/2;
 
   CentreXSuperconductor_2 = 0;
   CentreYSuperconductor_2 = 0;
-  CentreZSuperconductor_2 = 0;
+  CentreZSuperconductor_2 = -(az~{Sample~{2}}/2+SeparatingDistance/2);
 
   For i In {1:Num_Super}
   // x Bottom
@@ -97,7 +98,7 @@ ElseIf(Num_Super==2)
   // y Bottom
   y_Bottom_Super~{i} = CentreYSuperconductor~{i}-ay~{Sample~{i}}/2;
   // z x_Bottom
-  z_Bottom_Super~{i} = CentrezSuperconductor~{i}-az~{Sample~{i}}/2;
+  z_Bottom_Super~{i} = CentreZSuperconductor~{i}-az~{Sample~{i}}/2;
   EndFor
 EndIf
 
@@ -117,7 +118,7 @@ DefineConstant[ ThetaMax = {2*Pi, Highlight "LightYellow", Name "3Bulks Rotation
 DefineConstant[ Time_step_per_cycle = {40, Highlight "LightYellow", Name "3Bulks Rotation/Input/2Time step per cycle", Visible Active_approach }];
 DefineConstant[ Rotation_Speed = { Pi/100, Highlight "LightYellow" , Name "3Bulks Rotation/Input/3Rotation speed [Rad.s-1]", Visible Active_approach }];
 DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Highlight "LightYellow", Name "3Bulks Rotation/Input/4Time step duration during motion[s]", Visible Active_approach }];
-DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks Rotation/Input/5Test Projection"}];
+DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks Rotation/Input/6Test Projection"}];
 DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Properties/6Jc(B) dependence?"}];
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 
@@ -126,7 +127,8 @@ DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Mate
 DefineConstant[ Time_step = {18, Min 18, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Highlight "Purple", Step 1, Loop  1, Name "3Bulks Rotation/4Real time information/2Current cycle ", Visible Active_approach}];
 DefineConstant[ dTheta = {(Active_approach == 0) ? 0 : Rotation_Speed*Time_step_amplitude, Highlight "Purple", Name "3Bulks Rotation/4Real time information/4Increment angle", Visible 1}];
-MyTheta = dTheta*Time_step;
+MyTheta_1 = dTheta*Time_step;
+MyTheta_2 = 0;
 
 
 // Sensor experimental position
@@ -151,6 +153,9 @@ For i In {1:Num_Super}
 		Air_Ly = ay~{Sample~{i}};
 	EndIf
 	Air_Lz = Air_Lz + az~{Sample~{i}};
+  If(Num_Super==2)
+    Air_Lz = Air_Lz + SeparatingDistance;
+  EndIf
 EndFor
 
 Air_Lx = Air_Lx + 0.05;

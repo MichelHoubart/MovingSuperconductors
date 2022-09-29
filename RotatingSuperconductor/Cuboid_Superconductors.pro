@@ -189,15 +189,15 @@ Function{
 	For i In {1:Num_Super}
 		If(C_Axis~{i}==1)
 			SQRTAN[Cuboid_Superconductor~{i}] = TensorDiag[Sqrt[Anisotropy_Factor^n[]], 1, 1]; 		// For h-formulation
-			AddRho[Cuboid_Superconductor~{i}] =  MatRot[MyTheta]*TensorDiag[RhoSupCaxis, 0, 0]; 					   	// For h-formulation
+			AddRho[Cuboid_Superconductor~{i}] =  MatRot[MyTheta~{i}]*TensorDiag[RhoSupCaxis, 0, 0]; 					   	// For h-formulation
 			Anys_Matrix[Cuboid_Superconductor~{i}] = TensorDiag[1/Anisotropy_Factor, 1, 1];	   		// For a-formulation
 		ElseIf(C_Axis~{i}==2)
 			SQRTAN[Cuboid_Superconductor~{i}] = TensorDiag[1, Sqrt[Anisotropy_Factor^n[]], 1]; 		// For h-formulation
-			AddRho[Cuboid_Superconductor~{i}] =  MatRot[MyTheta]*TensorDiag[0, RhoSupCaxis, 0]; 					   	// For h-formulation
+			AddRho[Cuboid_Superconductor~{i}] =  MatRot[MyTheta~{i}]*TensorDiag[0, RhoSupCaxis, 0]; 					   	// For h-formulation
 			Anys_Matrix[Cuboid_Superconductor~{i}] = TensorDiag[1,1/Anisotropy_Factor, 1];	   		// For a-formulation
 		ElseIf(C_Axis~{i}==3)
 			SQRTAN[Cuboid_Superconductor~{i}] = TensorDiag[1, 1, Sqrt[Anisotropy_Factor^n[]]]; 		// For h-formulation
-			AddRho[Cuboid_Superconductor~{i}] = MatRot[MyTheta]*TensorDiag[0, 0, RhoSupCaxis]; 					   	// For h-formulation
+			AddRho[Cuboid_Superconductor~{i}] = MatRot[MyTheta~{i}]*TensorDiag[0, 0, RhoSupCaxis]; 					   	// For h-formulation
 			Anys_Matrix[Cuboid_Superconductor~{i}] = TensorDiag[1, 1, 1/Anisotropy_Factor];	   		// For a-formulation
 		Else
 			SQRTAN[Cuboid_Superconductor~{i}] = TensorDiag[1, 1, 1]; 								// For h-formulation
@@ -360,7 +360,7 @@ ElseIf(Flag_Source == 3)
   // directionApplied[] = Vector[0., 1/Sqrt[2], 1/Sqrt[2]];// Test
     DefineFunction [I, js, hsVal];
 
-	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\RotatingSuperconductors";
+	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\GetdpDev\RotatingSuperconductor";
   Str_LcCube = "7";
   Velocity[] = Vector[0,0,0];
 

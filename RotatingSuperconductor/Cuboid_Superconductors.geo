@@ -9,12 +9,8 @@ Block(airVol) = {-Air_Lx/2, -Air_Ly/2, -Air_Lz/2, Air_Lx, Air_Ly, Air_Lz};
 
 // Starting point of the first cuboid (x and y dir --> same whatever if we consider one or two superconductors)
 
-// Creation of the 3 Bulk, their initial positions depend both on the chosen displacement type and on the disposition chosen.
-If(Num_Super == 1)
-	Include "SingleRotatingSuper.geo";
-ElseIf(Num_Super == 2)
-	Include "PairofRotatingSuper.geo";
-EndIf
+// Creation of the Bulk(s), their initial positions depend both on the chosen displacement type and on the disposition chosen.
+Include "RotatingSuper.geo";
 
 volAir = BooleanDifference{ Volume{airVol}; Delete; }{ Volume{MaterialVol_Tot()};};
 Physical Volume("Air", AIR) = {volAir};
