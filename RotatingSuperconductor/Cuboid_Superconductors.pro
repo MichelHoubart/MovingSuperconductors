@@ -129,7 +129,10 @@ Group {
 
 
 Function{
+    // ------- Constants -------
     MatRot[] = Tensor[1,0,0,0,Cos[$1],-Sin[$1],0,Sin[$1],Cos[$1]];
+    mu0 = 4*Pi*1e-7; // [H/m]
+    nu0 = 1.0/mu0; // [m/H]
     // ------- PARAMETERS -------
     // Superconductor parameters
     DefineConstant [ec = 1e-4]; // Critical electric field [V/m]
@@ -152,17 +155,17 @@ Function{
 		n[Cuboid_Superconductor~{i}] = n~{i};
 
 		// Kim's model for anisotropy : Jc(B) = Jc0/(1+(||B||/B0)); n(B) = n1 + (n0-n1)/(1+(||B||/B0)) ---> Adjust the parameters!
-		DefineConstant[ jc0~{i} = {4.5061*1e8, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/5jc Sample%g (Am⁻²) (Kim's model)",i), Visible 1}]; // Critical current density [A/m2] QUALITATIVE BULKS : 2.2977*1e8, STACK TAPES : 1.3037*1e8
-		DefineConstant [n0~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/6n0 Sample%g(-) (Kim's model)",i)}];
-		DefineConstant [n1~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/7n1 Sample%g(-) (Kim's model)",i)}];
-		DefineConstant [B0~{i} = {0.5, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8B0 Sample%g(-) (Kim's model)",i)}];
+		DefineConstant[ jc0~{i} = {4.5061*1e8, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/5jc Sample%g (Am⁻²) (Kim's model)",i), Visible Flag_JcB}]; // Critical current density [A/m2] QUALITATIVE BULKS : 2.2977*1e8, STACK TAPES : 1.3037*1e8
+		DefineConstant [n0~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/6n0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
+		DefineConstant [n1~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/7n1 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
+		DefineConstant [B0~{i} = {0.5, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8B0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
 		jc0[Cuboid_Superconductor~{i}] = jc0~{i};
 		n0[Cuboid_Superconductor~{i}] = n0~{i};
 		n1[Cuboid_Superconductor~{i}] = n1~{i};
 		B0[Cuboid_Superconductor~{i}] = B0~{i};
 	EndFor
 
-	// Parameters for anisotropy
+	// Anisotropy
 	If(Num_Super == 1)
 	DefineConstant[ C_Axis_1 = {3, Highlight "LightGreen", Choices{
 				1="1 : x",
@@ -170,8 +173,8 @@ Function{
 				3="3 : z"}, // Peripheral sample
 			Name Sprintf("1Input/3Material Properties/3C-axis Sample1 Number"), Visible 1}];
 	Else
-		C_Axis_Base_1 = 2;
-		C_Axis_Base_2 = 0;
+		C_Axis_Base_1 = 3;
+		C_Axis_Base_2 = 3;
 		For i In {1:Num_Super}
 			DefineConstant[ C_Axis~{i} = {C_Axis_Base~{i}, Highlight "LightGreen", Choices{
 				1="1 : x",
@@ -181,10 +184,11 @@ Function{
 			Name Sprintf("1Input/3Material Properties/3C-axis Sample%g Number", i), Visible 1}];
 		EndFor
 	EndIf
-	// Rhosup qui fonctionne : 0.00000001
-	DefineConstant [RhoSupCaxis = {0.0000000, Highlight "LightGreen", Name "1Input/3Material Properties/9999Artificial supplementary resistivity along c-axis"}];
+
+	// Note: Rhosup qui fonctionne : 0.00000001
+	DefineConstant [ RhoSupCaxis = {0.0000000, Highlight "LightGreen", Name "1Input/3Material Properties/9999Artificial supplementary resistivity along c-axis (used in h formulation)"}];
 	DefineConstant[ Anisotropy_Factor = {1, Highlight "LightGreen",
-			Name Sprintf("1Input/3Material Properties/4Anisostropy Factor"), Visible 1}];
+			Name Sprintf("1Input/3Material Properties/4Anisostropy Factor(used in a formulation)"), Visible 1}];
 
 	For i In {1:Num_Super}
 		If(C_Axis~{i}==1)
@@ -206,7 +210,7 @@ Function{
 		EndIf
 	EndFor
 
-	// For numerical method
+	 // For numerical method
     DefineConstant [epsSigma = 1e-8]; // Importance of the linear part for a-formulation [-]
     DefineConstant [epsSigma2 = 1e-15]; // To prevent division by 0 in sigma [-]
 
@@ -217,11 +221,10 @@ Function{
     DefineConstant [epsMu = 1e-15]; // To prevent division by 0 in mu [A/m]
     DefineConstant [epsNu = 1e-10]; // To prevent division by 0 in nu [T]
 
-    // Excitation - Source field or imposed current intensty
-    // 0: sine, 1: triangle, 2: up-down-pause TFE , 3: step, 4: up-pause-down
+  // ------- Constants -------
 	If(Active_approach==0)
 		DefineConstant [Flag_Source = {6, Highlight "yellow", Choices{
-			1="Ini cond for Field Cooled (Ramp up and down)",
+			1="Ramp up and down",
 			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
       4="Constant background field",
@@ -229,81 +232,24 @@ Function{
       6="Rotating field"}, Name "1Input/4Source/0Source field type" }];
 	Else
 		DefineConstant [Flag_Source = {4, Visible 0, Highlight "yellow", Choices{
-			1="Field Cooled (with current in Super)",
+      1="Ramp up and down",
 			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
-      4="Constant background field"}, Name "1Input/4Source/0Source field type" }];
+      4="Constant background field",
+      5="Ramp Down",
+      6="Rotating field"}, Name "1Input/4Source/0Source field type" }];
 	EndIf
-  mu0 = 4*Pi*1e-7; // [H/m]
-  nu0 = 1.0/mu0; // [m/H]
-  /* hmax = bmax / mu0; */
-  MagRelaxPeriod = 2700; // Not useful for all source type.
-  ConstantlvlDurantion = 30;  // Not useful for all source type.
-If(Flag_Source == 1)
-      // Ramp Up and Down
-      bmax_m = 1.6;
-      bmin_m = 0.5;
-      rate = 0.001;
-      controlTimeInstants = {(bmax_m)/rate, ((2*bmax_m)-bmin_m)/rate};
-      qttMax = bmax_m / mu0;
-      qttMin = bmin_m / mu0;
-      hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : qttMax - (($Time - (bmax_m/rate))) * rate/mu0 );
-      hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : qttMax - ((($Time-$DTime) - (bmax_m/rate)) * rate)/mu0 );
-ElseIf(Flag_Source == 2)
-  // Source Big Blue Magnet with 45 min of Mag. Relax.
-  rate = 0.001;
-  bmax_m = 2.7;
-  bmin_m = 0.3;
-  controlTimeInstants = {(bmax_m)/rate, ((2*bmax_m)-bmin_m)/rate, (((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod};
-  qttMax = bmax_m / mu0;
-  qttMin = bmin_m / mu0;
-  hsVal[] =  (($Time * rate  <= bmax_m) ? ($Time * rate)/mu0 : ($Time * rate <= (2*bmax_m)-bmin_m) ? qttMax - (($Time - (bmax_m/rate)) * rate)/mu0 : bmin_m/ mu0);
-  hsVal_prev[] = ((($Time-$DTime) * rate  <= bmax_m) ? (($Time-$DTime) * rate)/mu0 : (($Time-$DTime) * rate <= (2*bmax_m)-bmin_m) ? qttMax - ((($Time-$DTime) - (bmax_m/rate)) * rate)/mu0 : bmin_m/mu0);
-ElseIf(Flag_Source == 3)
-      // No source --> For movement
-      controlTimeInstants = {999999,99999999}; // dummy
-      bmax_m = 0;
-      bmin_m = bmax_m;
-      rate = 0;
-      qttMax = 0;
-      hsVal[] = 0;
-      hsVal_prev[] = 0;
-  ElseIf(Flag_Source == 4)
-    // Constant Field Background field
-    controlTimeInstants = {999999,99999999}; // dummy
-    bmax_m = 0.3;
-    bmin_m = bmax_m;
-    rate = 0;
-    qttMax = 0;
-    hsVal[] = bmax_m/ mu0;
-    hsVal_prev[] = bmax_m/ mu0;
-  ElseIf(Flag_Source == 5)
-    // Constant + Ramp Down
-    bmax_m = 1.5;
-    bmin_m = 0.3;
-    rate = 0.001;
-    controlTimeInstants = {ConstantlvlDurantion/2,ConstantlvlDurantion+((bmax_m-bmin_m)/rate)};
-    qttMax = bmax_m / mu0;
-    hsVal[] = ($Time < ConstantlvlDurantion) ? qttMax : qttMax - ((($Time - ConstantlvlDurantion) * rate)/mu0);
-    hsVal_prev[] = (($Time-$DTime) < ConstantlvlDurantion) ? qttMax : qttMax - (((($Time-$DTime) - ConstantlvlDurantion) * rate)/mu0);
-  ElseIf(Flag_Source == 6)
-    // Rotating field    /!\ Flag_Test_projection should be 1 and proper IC required for convergence.
-    controlTimeInstants = {(ThetaMax/Rotation_Speed)/2,(ThetaMax/Rotation_Speed)};
-    bmax_m = 0.3;
-    bmin_m = bmax_m;
-    rate = 0;
-    qttMax = 0;
-    hsVal[] = bmax_m/ mu0;
-    hsVal_prev[] = bmax_m/ mu0;
-  EndIf
-    DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "1Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
-    DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
-    DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
-    DefineConstant [timeStart = 0]; // Initial time [s]
-    DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : (Flag_Source == 2) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Highlight "LightBlue", Name "1Input/5Method/Final Time"}]; // Final time for source definition [s]
-    DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
-    DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
-    DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
+}
+Include "SourceDefinition.pro";
+Function{
+  DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "1Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
+  DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
+  DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
+  DefineConstant [timeStart = 0]; // Initial time [s]
+  DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : (Flag_Source == 2) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Highlight "LightBlue", Name "1Input/5Method/Final Time"}]; // Final time for source definition [s]
+  DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
+  DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
+  DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
 
     // ------- NUMERICAL PARAMETERS -------
 	If(Active_approach == 0)
@@ -313,97 +259,88 @@ ElseIf(Flag_Source == 3)
 		DefineConstant [dt = {Time_step_amplitude, Highlight "LightBlue",
 			ReadOnly !expMode, Name "1Input/5Method/Time step (s)"}]; // Time step (initial if adaptive)[s]
 	EndIf
-    DefineConstant [adaptive = 1]; // Allow adaptive time step increase (case 0 not implemented yet)
-    DefineConstant [dt_max = dt]; // Maximum allowed time step [s]
-    DefineConstant [iter_max = {(Flag_NR_Super==1) ? 30 : 600, Highlight "LightBlue",
-        ReadOnly !expMode, Name "1Input/5Method/Max number of iteration (-)"}]; // Maximum number of nonlinear iterations
-    DefineConstant [extrapolationOrder = (preset==1) ? 1 : 2]; // Extrapolation order
+  DefineConstant [adaptive = 1]; // Allow adaptive time step increase (case 0 not implemented yet)
+  DefineConstant [dt_max = dt]; // Maximum allowed time step [s]
+  DefineConstant [iter_max = {(Flag_NR_Super==1) ? 30 : 600, Highlight "LightBlue",
+      ReadOnly !expMode, Name "1Input/5Method/Max number of iteration (-)"}]; // Maximum number of nonlinear iterations
+  DefineConstant [extrapolationOrder = (preset==1) ? 1 : 2]; // Extrapolation order
     // Use relaxation factors?
-    tryrelaxationfactors = 0;
+  tryrelaxationfactors = 0;
     // Convergence criterion
     // 0: energy estimate
     // 1: absolute/relative residual (do not use)
     // 2: relative increment (do not use either)
-    DefineConstant [convergenceCriterion = 0];
-    DefineConstant [tol_energy = {(preset == 1) ? 1e-6 : 1e-4, Highlight "LightBlue",
-        ReadOnly !expMode, Name "1Input/5Method/Relative tolerance (-)"}]; // Relative tolerance on the energy estimates
-    DefineConstant [tol_abs = 1e-12]; //Absolute tolerance on nonlinear residual
-    DefineConstant [tol_rel = 1e-6]; // Relative tolerance on nonlinear residual
-    DefineConstant [tol_incr = 5e-3]; // Relative tolerance on the solution increment
-    multFix = 1e0;
+  DefineConstant [convergenceCriterion = 0];
+  DefineConstant [tol_energy = {(preset == 1) ? 1e-6 : 1e-4, Highlight "LightBlue",
+      ReadOnly !expMode, Name "1Input/5Method/Relative tolerance (-)"}]; // Relative tolerance on the energy estimates
+  DefineConstant [tol_abs = 1e-12]; //Absolute tolerance on nonlinear residual
+  DefineConstant [tol_rel = 1e-6]; // Relative tolerance on nonlinear residual
+  DefineConstant [tol_incr = 5e-3]; // Relative tolerance on the solution increment
+  multFix = 1e0;
     // Output information
-    DefineConstant [economPos = 0]; // 0: Saves all fields. 1: Does not save fields (.pos)
-    DefineConstant [economInfo = 0]; // 0: Saves all iteration/residual info. 1: Does not save them
-    // Parameters
-    DefineConstant [saveAll = 0];  // Save all the iterations? (pay attention to memory! heavy files)
-    DefineConstant [writeInterval = dt]; // Time interval between two successive output file saves [s]
-    DefineConstant [saveAllSteps = 0];
-    DefineConstant [saveAllStepsSeparately = 0];
-    DefineConstant [savedPoints = 2000]; // Resolution of the line saving postprocessing
+  DefineConstant [economPos = 0]; // 0: Saves all fields. 1: Does not save fields (.pos)
+  DefineConstant [economInfo = 0]; // 0: Saves all iteration/residual info. 1: Does not save them
+  // Parameters
+  DefineConstant [saveAll = 0];  // Save all the iterations? (pay attention to memory! heavy files)
+  DefineConstant [writeInterval = dt]; // Time interval between two successive output file saves [s]
+  DefineConstant [saveAllSteps = 0];
+  DefineConstant [saveAllStepsSeparately = 0];
+  DefineConstant [savedPoints = 2000]; // Resolution of the line saving postprocessing
 
-    // Control points
-    controlPoint1 = {1e-5,0, 0}; // CP1
-    controlPoint2 = {ax~{Sample_1}/2-1e-5, 0, 0}; // CP2
-    controlPoint3 = {0, ay~{Sample_1}/2+2e-3, 0}; // CP3
-    controlPoint4 = {ax~{Sample_1}/2, ay~{Sample_1}/2+2e-3, 0}; // CP4
+  // Control points
+  controlPoint1 = {1e-5,0, 0}; // CP1
+  controlPoint2 = {ax~{Sample_1}/2-1e-5, 0, 0}; // CP2
+  controlPoint3 = {0, ay~{Sample_1}/2+2e-3, 0}; // CP3
+  controlPoint4 = {ax~{Sample_1}/2, ay~{Sample_1}/2+2e-3, 0}; // CP4
 
 	// Hall sensor position
 	Hall_sensor3 = {1e-5, 0 ,az~{Sample_1}/2 + 0.0005};
 	Hall_sensor5 = {0.01, 0 ,az~{Sample_1}/2 + 0.0005};
 
-    // Direction of applied field
-    If(Flag_Source == 6)
-        directionApplied[] = MatRot[($Time)*Rotation_Speed]*Vector[0., 0., 1.];
-    Else
-      directionApplied[] = Vector[0., 0., 1.];
-    EndIf
-  // directionApplied[] = Vector[0., 1/Sqrt[2], 1/Sqrt[2]];// Test
-    DefineFunction [I, js, hsVal];
+  DefineFunction [I, js, hsVal];
 
+ // ------- PROJECTION PARAMETERS -------
 	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\GetdpDev\RotatingSuperconductor";
   Str_LcCube = "7";
   Velocity[] = Vector[0,0,0];
 
   For i In {1:Num_Super}
-    CentreSuperconductor~{i}[] = Vector[CentreXSuperconductor~{i},CentreYSuperconductor~{i},CentreZSuperconductor~{i}];
+      CentreSuperconductor~{i}[] = Vector[CentreXSuperconductor~{i},CentreYSuperconductor~{i},CentreZSuperconductor~{i}];
   EndFor
-	// Projection parameters
+
 	If(Time_step==1) // First step
 		// For projection
 			//************ Initial condition File Depending on the considered modelled samples ****************//
-      /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FCwithoutJc\a1500Background.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\FCwithoutJc\h1500Background.pos"]];	// Central */
-
       DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\45minFC\a_2_7max_03min.pos"]];	// Central
       DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\45minFC\h_2_7max_03min.pos"]];	// Central
-				// Read a from File
-				GmshRead[ initialConditionFile_a1,1];
+			// Read a from File
+			GmshRead[ initialConditionFile_a1,1];
 
-				// Read h from file
-				GmshRead[ initialConditionFile_h1,4];
+			// Read h from file
+			GmshRead[ initialConditionFile_h1,4];
 
-        // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
-        If(FlagFCNoCurrent)
-            a_fromFile[Surface_Cuboid_Superconductor_1] = C*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
-            h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*Vector[0,0,1.2/mu0];
-        Else
-            a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
-				    h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{4};
-        EndIf
+      // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
+      If(FlagFCNoCurrent)
+          a_fromFile[Surface_Cuboid_Superconductor_1] = C*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
+          h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*Vector[0,0,1.2/mu0];
+      Else
+          a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
+			    h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{4};
+      EndIf
 	Else	// All other steps
         //************ Initial condition File Depending on the considered modelled samples ****************//
-        DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\Last_computed_a.pos"]];	// Central
-        DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\Last_computed_h.pos"]];	// Central
+      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\Last_computed_a.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\Last_computed_h.pos"]];	// Central
 
-        // Read a from File
-				GmshRead[ initialConditionFile_a1,1];
+      // Read a from File
+			GmshRead[ initialConditionFile_a1,1];
 
-				// Read h from file
-				GmshRead[ initialConditionFile_h1,4];
+			// Read h from file
+			GmshRead[ initialConditionFile_h1,4];
 
-        // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
-        a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])+CentreSuperconductor_1[]]{1};
-				h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])+CentreSuperconductor_1[]]{4};
+      // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
+      a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])+CentreSuperconductor_1[]]{1};
+			h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])+CentreSuperconductor_1[]]{4};
 	EndIf
 }
 
