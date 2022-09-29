@@ -8,7 +8,7 @@ R_inf = 0.1; // Outer shell radius [m]
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
 DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
-DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m]
+DefineConstant [LcAir = meshMult*0.0012]; // Mesh size away from superconductors [m]
 
 //  Ideal value for the mesh:
 /* DefineConstant [NbElemCube = 3]; // Mesh size in superconductors [m]
@@ -123,7 +123,7 @@ DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Mate
 
 
 // Informations for the user
-DefineConstant[ Time_step = {12, Min 12, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];
+DefineConstant[ Time_step = {18, Min 18, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Highlight "Purple", Step 1, Loop  1, Name "3Bulks Rotation/4Real time information/2Current cycle ", Visible Active_approach}];
 DefineConstant[ dTheta = {(Active_approach == 0) ? 0 : Rotation_Speed*Time_step_amplitude, Highlight "Purple", Name "3Bulks Rotation/4Real time information/4Increment angle", Visible 1}];
 MyTheta = dTheta*Time_step;
