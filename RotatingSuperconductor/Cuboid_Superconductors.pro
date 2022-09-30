@@ -310,8 +310,8 @@ Function{
 	If(Time_step==1) // First step
 		// For projection
 			//************ Initial condition File Depending on the considered modelled samples ****************//
-      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\45minFC\a_2_7max_03min.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\45minFC\h_2_7max_03min.pos"]];	// Central
+      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\a_2_7max_03min.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\h_2_7max_03min.pos"]];	// Central
 			// Read a from File
 			GmshRead[ initialConditionFile_a1,1];
 
@@ -320,16 +320,13 @@ Function{
 
       // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
       If(FlagFCNoCurrent)
-          a_fromFile[Surface_Cuboid_Superconductor_1] = C*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
-          h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*Vector[0,0,1.2/mu0];
+          a_fromFile[Surface_Cuboid_Superconductor_1] = C*VectorField[MatRot[-dTheta_1]*(XYZ[]-CentreSuperconductor_1[])]{1};
+          h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta_1]*Vector[0,0,1.2/mu0];
       Else
-          a_fromFile[Surface_Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
-			    h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{4};
-          // Cleaner version to be done!
-          If(Num_Super==2)
-              a_fromFile[Surface_Cuboid_Superconductor_2] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{1};
-              h_fromFile[Cuboid_Superconductor_2] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor_1[])]{4};
-          EndIf
+          For i In {1:Num_Super}
+              a_fromFile[Surface_Cuboid_Superconductor~{i}] = MatRot[dTheta~{i}]*VectorField[MatRot[-dTheta~{i}]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{1};
+              h_fromFile[Cuboid_Superconductor~{i}] = MatRot[dTheta~{i}]*VectorField[MatRot[-dTheta~{i}]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{4};
+          EndFor
       EndIf
 	Else	// All other steps
         //************ Initial condition File Depending on the considered modelled samples ****************//
@@ -343,9 +340,9 @@ Function{
 			GmshRead[ initialConditionFile_h1,4];
 
       For i In {1:Num_Super}
-      // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
-      a_fromFile[Surface_Cuboid_Superconductor~{i}] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{1};
-			h_fromFile[Cuboid_Superconductor~{i}] = MatRot[dTheta]*VectorField[MatRot[-dTheta]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{4};
+          // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
+          a_fromFile[Surface_Cuboid_Superconductor~{i}] = MatRot[dTheta~{i}]*VectorField[MatRot[-dTheta~{i}]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{1};
+    			h_fromFile[Cuboid_Superconductor~{i}] = MatRot[dTheta~{i}]*VectorField[MatRot[-dTheta~{i}]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{4};
       EndFor
   EndIf
 }
