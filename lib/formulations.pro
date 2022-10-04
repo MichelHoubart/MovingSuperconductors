@@ -936,7 +936,7 @@ PostProcessing {
                 In OmegaC; Jacobian Vol; } } }
             { Name jy; Value{ Local{ [ CompY[{d h}] ] ;
                 In OmegaC; Jacobian Vol; } } }
-			{ Name jz; Value{ Local{ [ CompZ[{d h}] ] ;
+			      { Name jz; Value{ Local{ [ CompZ[{d h}] ] ;
                 In OmegaC; Jacobian Vol; } } }
             { Name js; Value{ Local{ [ js[] ] ;
                 In OmegaC_stranded; Jacobian Vol; } } }
@@ -944,6 +944,11 @@ PostProcessing {
                 In OmegaC; Jacobian Vol; } } }
             { Name norm_j; Value{ Local{ [ Norm[{d h}] ] ;
                 In OmegaC; Jacobian Vol; } } }
+            For i In {1:Num_Super}
+                  { Name mSample~{i}; Value {
+                    Integral {Type Global; [ 0.5 * XYZ[] /\ {d h}  ]; In Cuboid_Superconductor~{i}; Jacobian Vol; Integration Int; } } }
+            EndFor
+
             If(Axisymmetry == 1)
                 { Name m_avg; Value{ Integral{ [ 2*Pi * 0.5 * XYZ[] /\ {d h} / (Pi*SurfaceArea[]*W_cylinder1/2) ] ;
                     In OmegaC; Integration Int; Jacobian Vol; } } } // Jacobian is in "Vol"
