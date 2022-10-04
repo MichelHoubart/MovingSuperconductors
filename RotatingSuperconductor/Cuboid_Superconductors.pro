@@ -300,7 +300,7 @@ Function{
   DefineFunction [I, js, hsVal];
 
  // ------- PROJECTION PARAMETERS -------
-	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\RotatingSuperconductors";
+	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\GetdpDev\RotatingSuperconductor";
   Velocity[] = Vector[0,0,0];
 
   For i In {1:Num_Super}
@@ -415,7 +415,10 @@ PostOperation {
 					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
           Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
           Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
-
+          For i In {1:Num_Super}
+              Str_Sample = Sprintf("%g", i);
+              Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".pos"]];
+          EndFor
           If(Active_approach==1)
             Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
   					Print[ h, OnElementsOf Omega_h, File StrCat["res/For_Matlab/Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
