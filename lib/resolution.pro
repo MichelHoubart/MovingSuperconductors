@@ -234,20 +234,20 @@ Return
 Resolution {
 	{ Name ProjectionInit ;
     System {
-	  If(formulation == h_formulation ) 
+	  If(formulation == h_formulation )
 		{ Name Pr ; NameOfFormulation Projection_h; DestinationSystem A;}
 	  ElseIf(formulation == a_formulation)
 		{ Name Pr ; NameOfFormulation Projection_a ; DestinationSystem A; }
 	  EndIf
     }
     Operation {
-		If(formulation == h_formulation ) 	
+		If(formulation == h_formulation )
 			Generate[Pr] ; Solve[Pr] ; TransferSolution[Pr] ;
 		ElseIf(formulation == a_formulation)
 			Generate[Pr] ; Solve[Pr] ; TransferSolution[Pr] ;
-		EndIf	
+		EndIf
     }
-	}	
+	}
     { Name MagDyn;
         System {
             If(formulation == h_formulation)
@@ -297,7 +297,7 @@ Resolution {
             SetExtrapolationOrder[ extrapolationOrder ];
             // ----- Enter implicit Euler time integration loop (hand-made) -----
             // Avoid too close steps at the end. Stop the simulation if the step becomes ridiculously small
-			
+
 			If(Active_approach == 0||(Active_approach == 2 && Time_step > (Time_step_per_cycle/2)))
 				While[$Time < timeFinalSimu - 1e-5 && $DTime > 1e-10 && $DTime > dt/50000] {
 					SetTime[ $Time + $DTime ]; // Time instant at which we are looking for the solution
@@ -489,8 +489,14 @@ PostOperation {
             NameOfPostProcessing MagDyn_coupled ;
         EndIf
         Operation{
-            Print[ b, OnElementsOf Omega, File "res/tmp_b", Format Gmsh,
-                LastTimeStepOnly, AppendTimeStepToFileName] ;
+          If(formulation == coupled_formulation)
+            Print[ power[Air], OnGlobal, Format Table, StoreInVariable $indicAir, File "WhatTimeIsIt.txt"];
+            Print[ h, OnElementsOf Omega_h, File StrCat["PreviousStep_h", ".pos"], Format Gmsh,
+            OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+            Print[ a, OnElementsOf Omega_a, File StrCat["PreviousStep_a", ".pos"],Format Gmsh,
+            OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+            Print[ j, OnElementsOf OmegaC , File StrCat["PreviousStep_j", ".pos"], Name "j [A/m2]", LastTimeStepOnly ];
+          EndIf
         }
     }
 }
