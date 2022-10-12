@@ -7,11 +7,11 @@ R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
-DefineConstant [LcAir = meshMult*0.0012]; // Mesh size away from superconductors [m]
+DefineConstant [NbElemCube = 24]; // Mesh size in superconductors [m]
+DefineConstant [LcAir = meshMult*0.0008]; // Mesh size away from superconductors [m]
 
 //  Ideal value for the mesh:
-/* DefineConstant [NbElemCube = 3]; // Mesh size in superconductors [m]
+/* DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
 DefineConstant [LcAir = meshMult*0.01]; // Mesh size away from superconductors [m] */
 
 // ---- Formulation definitions (dummy values) ----
@@ -29,7 +29,7 @@ DefineConstant[
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ];
 DefineConstant[
-  Num_Super = {2, Highlight "Red", Choices{
+  Num_Super = {1, Highlight "Red", Choices{
         1="1 : Single superconductor in field",
         2="2 : Pair of superconductors in field"
       }
@@ -104,7 +104,7 @@ EndIf
 
 //Inputs
 DefineConstant[
-  Active_approach = {1, Highlight "LightYellow", Choices{
+  Active_approach = {0, Highlight "LightYellow", Choices{
         0="0 : No Rotation: Initial condition",
         1="1 : Rotation then stop",
         2="2 : Rotation + Flux creep"}
@@ -124,13 +124,12 @@ DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Mate
 
 
 // Informations for the user
-DefineConstant[ Time_step = {8, Min 8, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];
+DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Highlight "Purple", Step 1, Loop  1, Name "3Bulks Rotation/4Real time information/2Current cycle ", Visible Active_approach}];
 DefineConstant[ dTheta_1 = {(Active_approach == 0) ? 0 : Rotation_Speed*Time_step_amplitude, Highlight "Purple", Name "3Bulks Rotation/4Real time information/4Increment angle", Visible 1}];
 MyTheta_1 = dTheta_1*Time_step;
 dTheta_2 = 0;
 MyTheta_2 = 0;
-
 
 // Sensor experimental position
 If(Modelled_Samples == 1 || Modelled_Samples == 2 || Modelled_Samples == 4)

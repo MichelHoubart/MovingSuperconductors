@@ -282,9 +282,9 @@ Function{
   DefineConstant [economInfo = 0]; // 0: Saves all iteration/residual info. 1: Does not save them
   // Parameters
   DefineConstant [saveAll = 0];  // Save all the iterations? (pay attention to memory! heavy files)
-  DefineConstant [writeInterval = dt]; // Time interval between two successive output file saves [s]
+  DefineConstant [writeInterval = 200]; // Time interval between two successive output file saves [s]
   DefineConstant [saveAllSteps = 0];
-  DefineConstant [saveAllStepsSeparately = 0];
+  DefineConstant [saveAllStepsSeparately = 1];
   DefineConstant [savedPoints = 2000]; // Resolution of the line saving postprocessing
 
   // Control points
@@ -300,7 +300,7 @@ Function{
   DefineFunction [I, js, hsVal];
 
  // ------- PROJECTION PARAMETERS -------
-	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\GetdpDev\RotatingSuperconductor";
+	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\RotatingSuperconductors";
   Velocity[] = Vector[0,0,0];
 
   For i In {1:Num_Super}
@@ -310,8 +310,8 @@ Function{
 	If(Time_step==1) // First step
 		// For projection
 			//************ Initial condition File Depending on the considered modelled samples ****************//
-      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\a_2_7max_03min.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\h_2_7max_03min.pos"]];	// Central
+      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\1Bulk_45minFC\a_2_7max_03min.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\1Bulk_45minFC\h_2_7max_03min.pos"]];	// Central
 			// Read a from File
 			GmshRead[ initialConditionFile_a1,1];
 
@@ -407,29 +407,31 @@ PostOperation {
             NameOfPostProcessing MagDyn_coupled;
         EndIf
         Operation {
-            If(economPos == 0)
-				  If(formulation == coupled_formulation)
-					Print[ h, OnElementsOf Omega_h, File StrCat["Last_computed_h", ExtGmsh], Format Gmsh,
-					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-					Print[ a, OnElementsOf Omega_a, File StrCat["Last_computed_a", ExtGmsh],Format Gmsh,
-					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-          Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
-          Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
-          For i In {1:Num_Super}
-              Str_Sample = Sprintf("%g", i);
-              Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
-          EndFor
-          If(Active_approach==1)
-            Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-  					Print[ h, OnElementsOf Omega_h, File StrCat["res/For_Matlab/Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-          EndIf
-          EndIf
-					Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [A/m2]" ];
-					Print[ e, OnElementsOf OmegaC , File "res/e.pos", Name "e [V/m]" ];
-					Print[ b, OnElementsOf Omega , File "res/b.pos", Name "b [T]" ];
-          If(formulation == coupled_formulation)
-					Print[ a, OnElementsOf Omega_a , File "res/a.pos", Name "a" ];
-          EndIf
+          If(economPos == 0)
+  				  If(formulation == coupled_formulation)
+  					Print[ h, OnElementsOf Omega_h, File StrCat["Last_computed_h", ExtGmsh], Format Gmsh,
+  					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+  					Print[ a, OnElementsOf Omega_a, File StrCat["Last_computed_a", ExtGmsh],Format Gmsh,
+  					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+            Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+            Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+
+            // Magnetic moment of each sample
+            For i In {1:Num_Super}
+                Str_Sample = Sprintf("%g", i);
+                Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
+            EndFor
+            If(Active_approach==1)
+              Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+    					Print[ h, OnElementsOf Omega_h, File StrCat["res/For_Matlab/Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+            EndIf
+            EndIf
+  					Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [A/m2]" ];
+  					Print[ e, OnElementsOf OmegaC , File "res/e.pos", Name "e [V/m]" ];
+  					Print[ b, OnElementsOf Omega , File "res/b.pos", Name "b [T]" ];
+            If(formulation == coupled_formulation)
+  					     Print[ a, OnElementsOf Omega_a , File "res/a.pos", Name "a" ];
+            EndIf
           EndIf
         }
     }
