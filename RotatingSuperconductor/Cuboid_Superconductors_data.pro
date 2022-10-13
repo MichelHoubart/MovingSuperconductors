@@ -55,15 +55,6 @@ ElseIf(Modelled_Samples == 3)
 EndIf
 	For i In {1:Num_Super}
 		DefineConstant[ Sample~{i} = {Config_Base~{i}, Highlight "Red", Choices{
-        1216,
-        1218,
-        1219,
-		    1220,
-		    1222,
-		    1215,
-		    1217,
-		    1221,
-	    	1223,
 		    123456789,
 		    666,
         222},
@@ -118,6 +109,7 @@ DefineConstant[ ThetaMax = {2*Pi, Highlight "LightYellow", Name "3Bulks Rotation
 DefineConstant[ Time_step_per_cycle = {40, Highlight "LightYellow", Name "3Bulks Rotation/Input/2Time step per cycle", Visible Active_approach }];
 DefineConstant[ Rotation_Speed = { Pi/100, Highlight "LightYellow" , Name "3Bulks Rotation/Input/3Rotation speed [Rad.s-1]", Visible Active_approach }];
 DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Highlight "LightYellow", Name "3Bulks Rotation/Input/4Time step duration during motion[s]", Visible Active_approach }];
+DefineConstant [timeStart = {0, Highlight "LightGreen", Name "1Input/3Material Properties/9Initial time"}]; // Initial time [s]
 DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks Rotation/Input/6Test Projection"}];
 DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Properties/6Jc(B) dependence?"}];
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
