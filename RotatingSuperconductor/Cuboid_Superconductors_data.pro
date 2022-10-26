@@ -7,8 +7,8 @@ R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-DefineConstant [NbElemCube = 24]; // Mesh size in superconductors [m]
-DefineConstant [LcAir = meshMult*0.0008]; // Mesh size away from superconductors [m]
+DefineConstant [NbElemCube = 4]; // Mesh size in superconductors [m]
+DefineConstant [LcAir = meshMult*0.08]; // Mesh size away from superconductors [m]
 
 //  Ideal value for the mesh:
 /* DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
@@ -48,7 +48,7 @@ ElseIf(Modelled_Samples == 3)
 		// Model Stacked tapes
 		Config_Base_1 = 123456789;
 		Config_Base_2 = 123456789;
-    ElseIf(Modelled_Samples == 4)
+ElseIf(Modelled_Samples == 4)
     		// Model Stacked tapes
     		Config_Base_1 = 222;
     		Config_Base_2 = 222;

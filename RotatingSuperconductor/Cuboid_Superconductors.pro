@@ -70,16 +70,19 @@ Group {
     			/* BndOmegaC += Region[ Boundary_BULK~{i} ]; */
     		EndFor
     ElseIf(MaterialType == 1)
-		For i In {1:Num_Super}
-			DefineGroup [Cuboid_Superconductor~{i}];
-			Super += Region[ BULK~{i} ];
-			Cond += Region[{ BULK~{i} }];
-			// Copper += Region[ BULK~{i} ];
-			Cuboid_Superconductor~{i} = Region[ BULK~{i} ];
-			Surface_Cuboid_Superconductor~{i} = Region[ Boundary_BULK~{i} ];
-			Surface_Superconductors += Region[ Boundary_BULK~{i} ];
-			BndOmegaC += Region[ Boundary_BULK~{i} ];
-		EndFor
+    		For i In {1:Num_Super}
+    			DefineGroup [Cuboid_Superconductor~{i}];
+    			Super += Region[ BULK~{i} ];
+    			Cond += Region[{ BULK~{i} }];
+    			// Copper += Region[ BULK~{i} ];
+    			Cuboid_Superconductor~{i} = Region[ BULK~{i} ];
+    			Surface_Cuboid_Superconductor~{i} = Region[ Boundary_BULK~{i} ];
+    			Surface_Superconductors += Region[ Boundary_BULK~{i} ];
+    			BndOmegaC += Region[ Boundary_BULK~{i} ];
+          Layer~{i} =  Region[Air, OnOneSideOf Boundary_BULK~{i}];
+          Vol_Layer += Region[Layer~{i}];
+    		EndFor
+        Vol_Force = Region [ Vol_Layer ];
         IsThereSuper = 1;
         Flag_LinearProblem = 0;
     ElseIf(MaterialType == 2)
@@ -92,8 +95,11 @@ Group {
 			Cuboid_Superconductor~{i} = Region[ BULK~{i} ];
 			Surface_Cuboid_Superconductor~{i} = Region[ Boundary_BULK~{i} ];
 			Surface_Superconductors += Region[ Boundary_BULK~{i} ];
+      Layer~{i} =  Region[Air, OnOneSideOf Boundary_BULK~{i}];
+      Vol_Layer += Region[Layer~{i}];
 			/* BndOmegaC += Region[ Boundary_BULK~{i} ]; */
 		EndFor
+    Vol_Force = Region [ Vol_Layer ];
     Copper += Region[ BULK_1 ];
 		/* Copper += Region[ MATERIAL2 ]; */
 		Bulk1 += Region[ BULK_1 ];
@@ -223,7 +229,7 @@ Function{
 
   // ------- Constants -------
 	If(Active_approach==0)
-		DefineConstant [Flag_Source = {2, Highlight "yellow", Choices{
+		DefineConstant [Flag_Source = {1, Highlight "yellow", Choices{
 			1="Ramp up and down",
 			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
@@ -240,7 +246,7 @@ Function{
       6="Rotating field"}, Name "1Input/4Source/0Source field type" }];
 	EndIf
 }
-Include "SourceDefinition.pro";
+Include "../lib/SourceDefinition.pro";
 Function{
   DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "1Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
   DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
@@ -299,7 +305,7 @@ Function{
   DefineFunction [I, js, hsVal];
 
  // ------- PROJECTION PARAMETERS -------
-	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\RotatingSuperconductors";
+	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\GetdpDev\RotatingSuperconductor";
   Velocity[] = Vector[0,0,0];
 
   For i In {1:Num_Super}
@@ -309,8 +315,8 @@ Function{
 	If(Time_step==1) // First step
 		// For projection
 			//************ Initial condition File Depending on the considered modelled samples ****************//
-      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\1Bulk_45minFC\a_2_7max_03min.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\1Bulk_45minFC\h_2_7max_03min.pos"]];	// Central
+      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\Last_computed_a.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\Last_computed_h.pos"]];	// Central
 			// Read a from File
 			GmshRead[ initialConditionFile_a1,1];
 
@@ -419,6 +425,7 @@ PostOperation {
             For i In {1:Num_Super}
                 Str_Sample = Sprintf("%g", i);
                 Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
+                Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/F_Step",Str_step,"_Sample",Str_Sample,".txt"]  ];
             EndFor
             If(Active_approach==1)
               Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
