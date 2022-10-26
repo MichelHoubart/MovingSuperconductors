@@ -154,22 +154,22 @@ Function{
     EndIf
     n_Base_1 = 20;
     n_Base_2 = 20;
-	For i In {1:Num_Super} // Full real Bulk: 2.2977 Stacked Tapes : 1.5312*1.0833*1.05*1e8 (Adjusted after Bobine Zoubir) Qualitative Bulk(2.2977*1.2051*0.9438*1e8) ||| Cutted Sample: 3.1786*1e8
-		DefineConstant[ jc~{i} = {jc_Base~{i}, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/2jc Sample%g (Am⁻²)",i), Visible 1}]; // Critical current density [A/m2]
-		DefineConstant [n~{i} = {n_Base~{i}, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/1n Sample%g(-)",i)}];	// Superconductor exponent (n) value [-]
-		jc[Cuboid_Superconductor~{i}] = jc~{i};
-		n[Cuboid_Superconductor~{i}] = n~{i};
+  	For i In {1:Num_Super} // Full real Bulk: 2.2977 Stacked Tapes : 1.5312*1.0833*1.05*1e8 (Adjusted after Bobine Zoubir) Qualitative Bulk(2.2977*1.2051*0.9438*1e8) ||| Cutted Sample: 3.1786*1e8
+  		DefineConstant[ jc~{i} = {jc_Base~{i}, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/2jc Sample%g (Am⁻²)",i), Visible 1}]; // Critical current density [A/m2]
+  		DefineConstant [n~{i} = {n_Base~{i}, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/1n Sample%g(-)",i)}];	// Superconductor exponent (n) value [-]
+  		jc[Cuboid_Superconductor~{i}] = jc~{i};
+  		n[Cuboid_Superconductor~{i}] = n~{i};
 
-		// Kim's model for anisotropy : Jc(B) = Jc0/(1+(||B||/B0)); n(B) = n1 + (n0-n1)/(1+(||B||/B0)) ---> Adjust the parameters!
-		DefineConstant[ jc0~{i} = {4.5061*1e8, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/5jc Sample%g (Am⁻²) (Kim's model)",i), Visible Flag_JcB}]; // Critical current density [A/m2] QUALITATIVE BULKS : 2.2977*1e8, STACK TAPES : 1.3037*1e8
-		DefineConstant [n0~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/6n0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
-		DefineConstant [n1~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/7n1 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
-		DefineConstant [B0~{i} = {0.5, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8B0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
-		jc0[Cuboid_Superconductor~{i}] = jc0~{i};
-		n0[Cuboid_Superconductor~{i}] = n0~{i};
-		n1[Cuboid_Superconductor~{i}] = n1~{i};
-		B0[Cuboid_Superconductor~{i}] = B0~{i};
-	EndFor
+  		// Kim's model for anisotropy : Jc(B) = Jc0/(1+(||B||/B0)); n(B) = n1 + (n0-n1)/(1+(||B||/B0)) ---> Adjust the parameters!
+  		DefineConstant[ jc0~{i} = {4.5061*1e8, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/5jc Sample%g (Am⁻²) (Kim's model)",i), Visible Flag_JcB}]; // Critical current density [A/m2] QUALITATIVE BULKS : 2.2977*1e8, STACK TAPES : 1.3037*1e8
+  		DefineConstant [n0~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/6n0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
+  		DefineConstant [n1~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/7n1 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
+  		DefineConstant [B0~{i} = {0.5, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8B0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
+  		jc0[Cuboid_Superconductor~{i}] = jc0~{i};
+  		n0[Cuboid_Superconductor~{i}] = n0~{i};
+  		n1[Cuboid_Superconductor~{i}] = n1~{i};
+  		B0[Cuboid_Superconductor~{i}] = B0~{i};
+  	EndFor
 
 	// Anisotropy
 	If(Num_Super == 1)
@@ -421,7 +421,7 @@ PostOperation {
             Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
             Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
 
-            // Magnetic moment of each sample
+            // Magnetic moment and force of each sample
             For i In {1:Num_Super}
                 Str_Sample = Sprintf("%g", i);
                 Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
