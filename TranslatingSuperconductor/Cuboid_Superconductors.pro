@@ -399,7 +399,10 @@ Group {
     			Surface_Cuboid_Superconductor~{i} = Region[ Boundary_BULK~{i} ];
     			Surface_Superconductors += Region[ Boundary_BULK~{i} ];
     			BndOmegaC += Region[ Boundary_BULK~{i} ];
+          Layer~{i} =  Region[Air, OnOneSideOf Boundary_BULK~{i}];
+          Vol_Layer += Region[Layer~{i}];
     		EndFor
+        Vol_Force = Region [ Vol_Layer ];
         IsThereSuper = 1;
         Flag_LinearProblem = 0;
     ElseIf(MaterialType == 2)
@@ -781,7 +784,13 @@ PostOperation {
           					ElseIf(formulation == coupled_formulation)
           						Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
           						Print[ h, OnElementsOf Omega_h, File StrCat["res/For_Matlab/Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-          					EndIf
+                      // Magnetic moment and force of each sample
+                    For i In {1:Num_Super}
+                        Str_Sample = Sprintf("%g", i);
+                        Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
+                        Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/F_Step",Str_step,"_Sample",Str_Sample,".txt"]  ];
+                    EndFor
+                    EndIf
         				EndIf
       			EndIf
         }
