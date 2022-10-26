@@ -139,6 +139,13 @@ Constraint {
             { Region Omega_h_OmegaC ; SubRegion BndOmegaC ; Value 0. ; }
         }
     }
+  For i In {1:Num_Super}
+    { Name Cuboid_Superconductor~{i} ;
+      Case {
+        { Region Surface_Cuboid_Superconductor~{i} ; Value 1. ; }
+      }
+    }
+  EndFor
 }
 // Function spaces for the spatial discretization
 FunctionSpace {
@@ -284,7 +291,21 @@ FunctionSpace {
                 EntityType GroupsOfNodesOf; NameOfConstraint Current; }
         }
     }
-}
+    // auxiliary field on layer of elements touching each magnet, for the
+    // accurate integration of the Maxwell stress tensor (using the gradient of
+    // this field)
+    For i In {1:Num_Super}
+      { Name Cuboid_Superconductor~{i} ; Type Form0 ;
+        BasisFunction {
+          { Name sn ; NameOfCoef un ; Function BF_GroupOfNodes ;
+            Support OmegaCC ; Entity GroupsOfNodesOf[ Surface_Cuboid_Superconductor~{i} ] ; }
+        }
+        Constraint {
+          { NameOfCoef un ; EntityType GroupsOfNodesOf ; NameOfConstraint Cuboid_Superconductor~{i} ;}
+        }
+      }
+    EndFor
+  }
 
 // ----------------------------------------------------------------------------
 // --------------------------- FORMULATION ------------------------------------
@@ -648,6 +669,10 @@ Formulation {
             { Name h; Type Local; NameOfSpace h_space; }
             { Name I; Type Global; NameOfSpace h_space[I]; }
             { Name V; Type Global; NameOfSpace h_space[V]; }
+            // Dummy field for force computation
+            For i In {1:Num_Super}
+                { Name un~{i} ; Type Local ; NameOfSpace Cuboid_Superconductor~{i} ; }
+            EndFor
             If(Dim == 3)
                 { Name a; Type Local; NameOfSpace a_space_3D; }
                 { Name ap; Type Local; NameOfSpace a_space_3D; } // To avoid auto-symmetrization by GetDP
@@ -721,6 +746,11 @@ Formulation {
             EndIf
             // ---- TERM FOR GLOBAL CONSTRAINT ----
             GlobalTerm { [ Dof{V} , {I} ] ; In Cuts ; }
+            For i In {1:Num_Super}
+                // dummy term to define dofs for fully fixed space
+                Galerkin { [ 0 * Dof{un~{i}} , {un~{i}} ] ;
+                In OmegaCC ; Jacobian Vol ; Integration Int ; }
+            EndFor
         }
     }
 }
@@ -1017,6 +1047,17 @@ PostProcessing {
                   }
                 }
             EndIf
+            For i In {1:Num_Super}
+                  { Name un~{i} ; Value { Local { [ {un~{i}} ] ; In Vol_Force ; Jacobian Vol ; } } }
+                  { Name f~{i} ; Value { Integral { [ - T_max[{d a}] * {d un~{i}} ] ;
+                        In Vol_Force ; Jacobian Vol ; Integration Int ; } } }
+                  { Name fx~{i} ; Value { Integral { [ CompX[- T_max[{d a}] * {d un~{i}} ] ] ;
+                        In Vol_Force ; Jacobian Vol ; Integration Int ; } } }
+                  { Name fy~{i} ; Value { Integral { [ CompY[- T_max[{d a}] * {d un~{i}} ] ] ;
+                        In Vol_Force ; Jacobian Vol ; Integration Int ; } } }
+                  { Name fz~{i} ; Value { Integral { [ CompZ[- T_max[{d a}] * {d un~{i}} ] ] ;
+                        In Vol_Force ; Jacobian Vol ; Integration Int ; } } }
+            EndFor
         }
     }
 }
