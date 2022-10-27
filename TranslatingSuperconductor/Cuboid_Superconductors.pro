@@ -788,7 +788,8 @@ PostOperation {
                     For i In {1:Num_Super}
                         Str_Sample = Sprintf("%g", i);
                         Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
-                        Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/F_Step",Str_step,"_Sample",Str_Sample,".txt"]  ];
+                        Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/F_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
+                        Print[ t~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/T_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
                     EndFor
                     EndIf
         				EndIf
