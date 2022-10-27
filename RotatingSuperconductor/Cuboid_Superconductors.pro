@@ -229,7 +229,7 @@ Function{
 
   // ------- Constants -------
 	If(Active_approach==0)
-		DefineConstant [Flag_Source = {1, Highlight "yellow", Choices{
+		DefineConstant [Flag_Source = {2, Highlight "yellow", Choices{
 			1="Ramp up and down",
 			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
@@ -251,7 +251,7 @@ Function{
   DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "1Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
   DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
   DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
-  DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : (Flag_Source == 2) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Highlight "LightBlue", Name "1Input/5Method/Final Time"}]; // Final time for source definition [s]
+  DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : ((Flag_Source == 2)||(Flag_Source == 7)) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Highlight "LightBlue", Name "1Input/5Method/Final Time"}]; // Final time for source definition [s]
   DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
   DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
   DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
@@ -425,7 +425,8 @@ PostOperation {
             For i In {1:Num_Super}
                 Str_Sample = Sprintf("%g", i);
                 Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
-                Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/F_Step",Str_step,"_Sample",Str_Sample,".txt"]  ];
+                Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/F_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
+                Print[ t~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/T_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
             EndFor
             If(Active_approach==1)
               Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
