@@ -229,7 +229,7 @@ Function{
 
   // ------- Constants -------
 	If(Active_approach==0)
-		DefineConstant [Flag_Source = {2, Highlight "yellow", Choices{
+		DefineConstant [Flag_Source = {6, Highlight "yellow", Choices{
 			1="Ramp up and down",
 			2="Ramp up, down and flux creep",
 			3="No source => For modelling motion",
@@ -287,7 +287,7 @@ Function{
   DefineConstant [economInfo = 0]; // 0: Saves all iteration/residual info. 1: Does not save them
   // Parameters
   DefineConstant [saveAll = 0];  // Save all the iterations? (pay attention to memory! heavy files)
-  DefineConstant [writeInterval = 200]; // Time interval between two successive output file saves [s]
+  DefineConstant [writeInterval = (Flag_Source == 6)? 20 : 200]; // Time interval between two successive output file saves [s]
   DefineConstant [saveAllSteps = 0];
   DefineConstant [saveAllStepsSeparately = 1];
   DefineConstant [savedPoints = 2000]; // Resolution of the line saving postprocessing
@@ -305,7 +305,7 @@ Function{
   DefineFunction [I, js, hsVal];
 
  // ------- PROJECTION PARAMETERS -------
-	Str_Directory_Code = "C:\Users\miche\OneDrive - Universite de Liege\Unif\Phd\WP2\GetdpDev\RotatingSuperconductor";
+	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\RotatingSuperconductors";
   Velocity[] = Vector[0,0,0];
 
   For i In {1:Num_Super}
@@ -315,8 +315,8 @@ Function{
 	If(Time_step==1) // First step
 		// For projection
 			//************ Initial condition File Depending on the considered modelled samples ****************//
-      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\Last_computed_a.pos"]];	// Central
-      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\Last_computed_h.pos"]];	// Central
+      DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\1Bulk_45minFC\LcCube24elem\a_2_7max_03min.pos"]];	// Central
+      DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\1Bulk_45minFC\LcCube24elem\h_2_7max_03min.pos"]];	// Central
 			// Read a from File
 			GmshRead[ initialConditionFile_a1,1];
 
