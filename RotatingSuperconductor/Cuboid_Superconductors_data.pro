@@ -53,44 +53,44 @@ ElseIf(Modelled_Samples == 4)
     		Config_Base_1 = 222;
     		Config_Base_2 = 222;
 EndIf
-	For i In {1:Num_Super}
+For i In {1:Num_Super}
 		DefineConstant[ Sample~{i} = {Config_Base~{i}, Highlight "Red", Choices{
 		    123456789,
 		    666,
         222},
-	Name Sprintf("2Parameters of the configuration/3Sample%g Number", i), Visible 1}];
-	EndFor
+	  Name Sprintf("2Parameters of the configuration/3Sample%g Number", i), Visible 1}];
+EndFor
 
 // ---- Rotation of the bulk ----
 // Position of the centre of each BULK
 DefineConstant[ SeparatingDistance = {0.015, Highlight "LightYellow", Name "3Bulks Rotation/Input/5Separating distance"}];
 If(Num_Super==1)
-  CentreXSuperconductor_1 = 0.00;
-  CentreYSuperconductor_1 = 0.00;
-  CentreZSuperconductor_1 = 0.00;
-  // x Bottom
-  x_Bottom_Super_1 = CentreXSuperconductor_1-ax~{Sample_1}/2;
-  // y Bottom
-  y_Bottom_Super_1 = CentreYSuperconductor_1-ay~{Sample_1}/2;
-  // z x_Bottom
-  z_Bottom_Super_1 = CentreZSuperconductor_1-az~{Sample_1}/2;
+    CentreXSuperconductor_1 = 0.00;
+    CentreYSuperconductor_1 = 0.00;
+    CentreZSuperconductor_1 = 0.00;
+    // x Bottom
+    x_Bottom_Super_1 = CentreXSuperconductor_1-ax~{Sample_1}/2;
+    // y Bottom
+    y_Bottom_Super_1 = CentreYSuperconductor_1-ay~{Sample_1}/2;
+    // z x_Bottom
+    z_Bottom_Super_1 = CentreZSuperconductor_1-az~{Sample_1}/2;
 ElseIf(Num_Super==2)
-  CentreXSuperconductor_1 = 0;
-  CentreYSuperconductor_1 = 0;
-  CentreZSuperconductor_1 = az~{Sample~{1}}/2+SeparatingDistance/2;
+    CentreXSuperconductor_1 = 0;
+    CentreYSuperconductor_1 = 0;
+    CentreZSuperconductor_1 = az~{Sample~{1}}/2+SeparatingDistance/2;
 
-  CentreXSuperconductor_2 = 0;
-  CentreYSuperconductor_2 = 0;
-  CentreZSuperconductor_2 = -(az~{Sample~{2}}/2+SeparatingDistance/2);
+    CentreXSuperconductor_2 = 0;
+    CentreYSuperconductor_2 = 0;
+    CentreZSuperconductor_2 = -(az~{Sample~{2}}/2+SeparatingDistance/2);
 
-  For i In {1:Num_Super}
-  // x Bottom
-  x_Bottom_Super~{i} = CentreXSuperconductor~{i}-ax~{Sample~{i}}/2;
-  // y Bottom
-  y_Bottom_Super~{i} = CentreYSuperconductor~{i}-ay~{Sample~{i}}/2;
-  // z x_Bottom
-  z_Bottom_Super~{i} = CentreZSuperconductor~{i}-az~{Sample~{i}}/2;
-  EndFor
+    For i In {1:Num_Super}
+        // x Bottom
+        x_Bottom_Super~{i} = CentreXSuperconductor~{i}-ax~{Sample~{i}}/2;
+        // y Bottom
+        y_Bottom_Super~{i} = CentreYSuperconductor~{i}-ay~{Sample~{i}}/2;
+        // z x_Bottom
+        z_Bottom_Super~{i} = CentreZSuperconductor~{i}-az~{Sample~{i}}/2;
+    EndFor
 EndIf
 
 //Inputs
@@ -125,9 +125,9 @@ MyTheta_2 = 0;
 
 // Sensor experimental position
 If(Modelled_Samples == 1 || Modelled_Samples == 2 || Modelled_Samples == 4)
-	DFromSurf = 0.001;
+	 DFromSurf = 0.001;
 Else
-	DFromSurf = 0.0015;
+	 DFromSurf = 0.0015;
 EndIf
 
 // ---- Saving Files for Matlab post-processing? ----
@@ -138,16 +138,16 @@ Air_Lx = 0;
 Air_Ly = 0;
 Air_Lz = 0;
 For i In {1:Num_Super}
-	If(Air_Lx < ax~{Sample~{i}})
-		Air_Lx = ax~{Sample~{i}};
-	EndIf
-	If(Air_Ly < ay~{Sample~{i}})
-		Air_Ly = ay~{Sample~{i}};
-	EndIf
-	Air_Lz = Air_Lz + az~{Sample~{i}};
-  If(Num_Super==2)
-    Air_Lz = Air_Lz + SeparatingDistance;
-  EndIf
+  	If(Air_Lx < ax~{Sample~{i}})
+  		  Air_Lx = ax~{Sample~{i}};
+  	EndIf
+  	If(Air_Ly < ay~{Sample~{i}})
+  		  Air_Ly = ay~{Sample~{i}};
+  	EndIf
+  	Air_Lz = Air_Lz + az~{Sample~{i}};
+    If(Num_Super==2)
+        Air_Lz = Air_Lz + SeparatingDistance;
+    EndIf
 EndFor
 
 Air_Lx = Air_Lx + 0.05;
@@ -160,8 +160,8 @@ SUPERCONDUCTING_REGION = 3000;
 BND_MATERIAL = 4000;
 SURF_OUT = 5000;
 For i In {1:Num_Super}
-	BULK~{i} = 10000*i;
-	Boundary_BULK~{i} = 11111*i;
+  	BULK~{i} = 10000*i;
+  	Boundary_BULK~{i} = 11111*i;
 EndFor
 ARBITRARY_POINT = 11000;
 AP = 123456789;
