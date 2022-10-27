@@ -1051,6 +1051,8 @@ PostProcessing {
                   { Name un~{i} ; Value { Local { [ {un~{i}} ] ; In Vol_Force ; Jacobian Vol ; } } }
                   { Name f~{i} ; Value { Integral { [ - T_max[{d a}] * {d un~{i}} ] ;
                         In Vol_Force ; Jacobian Vol ; Integration Int ; } } }
+                  { Name t~{i} ; Value { Integral {  [ XYZ[] /\(-T_max[{d a}] * {d un~{i}}) ] ;
+                              In Vol_Force ; Jacobian Vol ; Integration Int ; } } }
                   { Name fx~{i} ; Value { Integral { [ CompX[- T_max[{d a}] * {d un~{i}} ] ] ;
                         In Vol_Force ; Jacobian Vol ; Integration Int ; } } }
                   { Name fy~{i} ; Value { Integral { [ CompY[- T_max[{d a}] * {d un~{i}} ] ] ;
