@@ -630,8 +630,9 @@ Function{
 		  Velocity[] = Vector[0, 0, 0];
 	EndIf
 
-	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\Cuboid_Superconductors";
-	// Projection parameters
+	Str_Directory_Code = "C:\Users\Administrator\Desktop\Michel\WP1\Test_Moving_Super\TranslatingSuperconductor";
+  Str_LcCube = Sprintf("%g", NbElemCube); // Not well defined for old simulation
+  // Projection parameters
 	If(Time_step==1 && Cycle==1) // First step
   		// For projection
   		If(Num_Super == 3 || Num_Super == 4)
@@ -645,12 +646,12 @@ Function{
           Call ReadFirstInitialCondition;
 		  Else
       		// MAGNETISATION ONLY, Whatever From File, except for test
-      			initialConditionFile_Cylinder1_h = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\hfield_CentralEch_LcCube_0_000",Str_LcCube,".pos"];
+      			initialConditionFile_Cylinder1_h = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\hfield_CentralEch_LcCube_0_00035",".pos"];
       			// initialConditionFile_Cylinder1_h = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Last_computed_h.pos"];
       			GmshRead[initialConditionFile_Cylinder1_h,43];
       			h_fromFile[Super] = VectorField[XYZ[]]{43};
 
-      			initialConditionFile_Cylinder1_a = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_CentralEch_LcCube_0_000",Str_LcCube,".pos"];
+      			initialConditionFile_Cylinder1_a = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_CentralEch_LcCube_0_00035",".pos"];
       			// initialConditionFile_Cylinder1_a = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Last_computed_a.pos"];
       			GmshRead[initialConditionFile_Cylinder1_a,44];
       			a_fromFile[Surface_Superconductors] = VectorField[XYZ[]]{44};

@@ -7,7 +7,7 @@ R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-DefineConstant [LcCube = meshMult*0.00035]; // Mesh size in superconductors [m]
+DefineConstant [NbElemCube = 24];
 DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m]
 
 // ---- Formulation definitions (dummy values) ----
@@ -25,7 +25,7 @@ DefineConstant[
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ];
 DefineConstant[
-  Num_Super = {3, Highlight "Red", Choices{
+  Num_Super = {2, Highlight "Red", Choices{
         1="1 : Computing the initial condition",
         3="3 : Partial Halbach array",
         5="5 : Complete Halbach array",
@@ -71,7 +71,7 @@ EndIf
 // ---- Displacement of the bulk ----
 //Inputs
 DefineConstant[
-  Active_approach = {1, Highlight "LightYellow", Choices{
+  Active_approach = {0, Highlight "LightYellow", Choices{
         0="0 : No approach: Initial condition",
         1="1 : Approach + Retract",
         2="2 : Approach + Flux creep"}
@@ -94,7 +94,7 @@ DefineConstant[
 ];
 DefineConstant[ Maximal_separating_distance = {0.041, Highlight "LightYellow", Name "3Bulks Motion/Input/3Distance max between superconductors", Visible Active_approach}];
 Str_Maxdist = Sprintf("%g", Maximal_separating_distance);
-Str_LcCube = Sprintf("%g", (LcCube/meshMult)*100000);
+/* Str_LcCube = Sprintf("%g", (LcCube/meshMult)*100000); */
 DefineConstant[ Minimal_separating_distance = {0.0015, Highlight "LightYellow", Name "3Bulks Motion/Input/4Distance min between superconductors", Visible Active_approach}]; //FCZFC: 0.0014 (For Full 4th supercond)
 If(Approach_Type == 2 && ((Num_Super==3)||(Num_Super==5)) )
 	Minimal_separating_distance = 0;

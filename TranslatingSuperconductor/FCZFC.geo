@@ -3,11 +3,12 @@ y_Bottom_Super_courant = y_Bottom_Super;
 z_Bottom_Super_courant = z_Bottom_Super;
 // ******************* Bulks Definition ******************* //
 For i In {1:Num_Super}
+  LcCube = ax~{Sample~{i}}/NbElemCube; // Mesh size in superconductors [m]
 	materialVol~{i} = i*100;
-	If((True_Numbering~{i} == 3)) 
+	If((True_Numbering~{i} == 3))
 		// Central Bulk
 		Block(materialVol~{i}) = {x_Bottom_Super_courant, y_Bottom_Super_courant, z_Bottom_Super_courant, ax~{Sample~{i}}, ay~{Sample~{i}}, az~{Sample~{i}}};     // No offset in position along y
-	ElseIf(True_Numbering~{i} == 6) 
+	ElseIf(True_Numbering~{i} == 6)
 		// Supplementary Bulk
 		If(Approach_Type == 1)
 			// Approach along the axis of the array
@@ -16,11 +17,11 @@ For i In {1:Num_Super}
 			// Retract perpendicularly to the axis of the array
 			Block(materialVol~{i}) = {x_Bottom_Super_courant-((ax~{Sample~{4}}-ax~{Sample~{2}})/2), y_Bottom_Super_courant+ay~{Stationnary_Sample}+Distance_between_super, z_Bottom_Super_6-((az~{Sample~{4}}-az~{Sample~{2}})/2), ax~{Sample~{i}}, ay~{Sample~{i}}, az~{Sample~{i}}};
 		EndIf
-	ElseIf((True_Numbering~{i} == 2)||(True_Numbering~{i} == 4)) 
+	ElseIf((True_Numbering~{i} == 2)||(True_Numbering~{i} == 4))
 		// Peripheral samples
 		Block(materialVol~{i}) = {x_Bottom_Super_courant, y_Bottom_Super_courant, z_Bottom_Super_courant, ax~{Sample~{i}}, ay~{Sample~{i}}, az~{Sample~{i}}};     // No offset in position along y
 	EndIf
-	
+
 	// Surfaces, lines and points of the current sample
 	f_c~{i}() = Boundary{Volume{materialVol~{i}};};
 	l_c~{i}() = Boundary{Surface{f_c~{i}()};};
@@ -49,7 +50,7 @@ For i In {1:Num_Super}
 	Recombine Surface((i)*6+5);
 	Recombine Surface((i)*6+6);
 
-	If(Approach_Type == 1) 
+	If(Approach_Type == 1)
 		// Approach along z
 		z_Bottom_Super_courant = z_Bottom_Super_courant + az~{Sample~{i}} + Distance_between_super;
 	ElseIf(Approach_Type == 2)
