@@ -766,17 +766,17 @@ PostOperation {
                 EndIf
         				If(Active_approach==0)
           					Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [A/m2]" ];
-          					Print[ e, OnElementsOf OmegaC , File "res/e.pos", Name "e [V/m]" ];
+          					Print[ e, OnElementsOf OmegaC , File "res/e.pos", Name "e [V/m]" ]; 
           					Print[ b, OnElementsOf Omega , File "res/b.pos", Name "b [T]" ];
-            				If(formulation == coupled_formulation)
+            				 If(formulation == coupled_formulation)
             						Print[ a, OnElementsOf Omega_a , File "res/a.pos", Name "a" ];
             				EndIf
         		    EndIf
             EndIf
       			If(Save_later == 1) // Exports for MATLAB plot
-        				Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+        				 Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
         				Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
-        				If(Num_Super == 3 || Num_Super == 4)
+        				If(Num_Super == 2 || Num_Super == 4 || Num_Super == 3)
           					// Save the field a, h and j at current step
           					If(formulation == a_formulation)
           						Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
@@ -801,6 +801,6 @@ PostOperation {
 
 DefineConstant[
   R_ = {"MagDyn", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -pos -bin -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  C_ = {"-solve -pos -bin -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 1},
   P_ = { "MagDyn", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
