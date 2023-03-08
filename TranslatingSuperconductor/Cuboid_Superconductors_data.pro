@@ -8,7 +8,7 @@ R_inf = 0.1; // Outer shell radius [m]
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
 DefineConstant [NbElemCube = 24];
-DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m]
+DefineConstant [LcAir = meshMult*0.006]; // Mesh size away from superconductors [m]
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
@@ -25,7 +25,7 @@ DefineConstant[
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ];
 DefineConstant[
-  Num_Super = {2, Highlight "Red", Choices{
+  Num_Super = {3, Highlight "Red", Choices{
         1="1 : Computing the initial condition",
         3="3 : Partial Halbach array",
         5="5 : Complete Halbach array",
@@ -34,12 +34,24 @@ DefineConstant[
 		, Name "2Parameters of the configuration/2Number of superconductors"}
 ];
 If(Num_Super == 1 ||Num_Super == 2)
-	DefineConstant[ Sample_1 = {666, Highlight "Red", Choices{
-		123456789, // Stacked tapes
-		666  }, // Qualitative bulks
-	Name "2Parameters of the configuration/3Sample1 Number", Visible (Num_Super == 1)}];
-	DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
-	Sample_2 = 6664; // Supplementary sample
+  If(Modelled_Samples == 1)
+  	DefineConstant[ Sample_1 = {666, Highlight "Red", Choices{
+  		123456789, // Stacked tapes
+  		666  }, // Qualitative bulks
+  	Name "2Parameters of the configuration/3Sample1 Number", Visible (Num_Super == 1)}];
+  	DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
+  	Sample_2 = 6664; // Supplementary sample
+  ElseIf(Modelled_Samples == 2)
+  		// Real Bulks
+  ElseIf(Modelled_Samples == 3)
+  		// Model Stacked tapes
+      DefineConstant[ Sample_1 = {123456789, Highlight "Red", Choices{
+    		123456789, // Stacked tapes
+    		666  }, // Qualitative bulks
+    	Name "2Parameters of the configuration/3Sample1 Number", Visible (Num_Super == 1)}];
+    	DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
+    	Sample_2 = 6665; // Supplementary sample
+  EndIf
 ElseIf(Num_Super == 3 || Num_Super == 4)
 	If(Modelled_Samples == 1)
 		// Qualitative bulks
@@ -54,7 +66,7 @@ ElseIf(Num_Super == 3 || Num_Super == 4)
 		Config_Base_1 = 123456789;
 		Config_Base_2 = 123456789;
 		Config_Base_3 = 123456789;
-		Config_Base_4 = 6664;
+		Config_Base_4 = 6665;
 	EndIf
 	For i In {1:Num_Super}
 		DefineConstant[ Sample~{i} = {Config_Base~{i}, Highlight "Red", Choices{
@@ -71,7 +83,7 @@ EndIf
 // ---- Displacement of the bulk ----
 //Inputs
 DefineConstant[
-  Active_approach = {0, Highlight "LightYellow", Choices{
+  Active_approach = {1, Highlight "LightYellow", Choices{
         0="0 : No approach: Initial condition",
         1="1 : Approach + Retract",
         2="2 : Approach + Flux creep"}
@@ -110,7 +122,7 @@ DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks
 DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Properties/91Jc(B) dependence?"}];	// Superconductor exponent (n) value [-]
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 // Informations for the user
-DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
+DefineConstant[ Time_step = {13, Min 13, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Step 1, Loop  1, Name "3Bulks Motion/Real time information/2Current cycle ", Visible Active_approach}];
 // Bulks position definition
 If(Active_approach == 0)

@@ -18,13 +18,13 @@ Macro InitialFileSelection
         // DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\Initial_Conditions\Ini_cond_a_Maxdist", Str_Maxdist ,"_66613_Lccube_0_000",Str_LcCube,"_Jc4.pos"]];	// Peripheral
       ElseIf(formulation == coupled_formulation)
         If(RhoSupCaxis == 0)  // Qualitative Bulks (Isotropic behaviour)
-          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_PeripheralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_CentralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Central
-          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_PeripheralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_periphech",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_centralech",".pos"]];	// Central
+          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_periphech",".pos"]];	// Peripheral
 
-          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\hfield_PeripheralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\hfield_CentralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Central
-          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\hfield_PeripheralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_periphech",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_centralech",".pos"]];	// Central
+          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_periphech",".pos"]];	// Peripheral
         ElseIf(Modelled_Samples == 1) // Qualitative Stacked Tapes (14x14x14 mm3)
           DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_PeripheralEch_LcCube_0_000",Str_LcCube,"_Ani.pos"]];	// Peripheral
           DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_CentralEch_LcCube_0_000",Str_LcCube,"_Ani.pos"]];	// Central
@@ -99,22 +99,22 @@ Macro FirstBulkPositionning
       // Pojection without offset along y
       If(Num_Super == 3)
         dXYZ[Region[{Cuboid_Superconductor_1}]] = Vector[-ax~{Stationnary_Sample}/2 + ax~{Sample_1}/2,-ay~{Stationnary_Sample}/2 + ay~{Sample_1}/2 , -az~{Stationnary_Sample}/2 -az~{Sample_1}/2 -Distance_between_super];
-        dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., 0 , 0];
+        dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., 0. , 0.];
         dXYZ[Region[{Cuboid_Superconductor_3}]] = Vector[-ax~{Stationnary_Sample}/2 + ax~{Sample_3}/2, -ay~{Stationnary_Sample}/2 + ay~{Sample_3}/2,  +az~{Stationnary_Sample}/2 +az~{Sample_3}/2 + Distance_between_super];
 
         dXYZ[Region[{Surface_Cuboid_Superconductor_1}]] = Vector[-ax~{Stationnary_Sample}/2 + ax~{Sample_1}/2,-ay~{Stationnary_Sample}/2 + ay~{Sample_1}/2 , -az~{Stationnary_Sample}/2 -az~{Sample_1}/2 -Distance_between_super];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., 0 , 0];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., 0. , 0.];
         dXYZ[Region[{Surface_Cuboid_Superconductor_3}]] = Vector[-ax~{Stationnary_Sample}/2 + ax~{Sample_3}/2, -ay~{Stationnary_Sample}/2 + ay~{Sample_3}/2,  +az~{Stationnary_Sample}/2 +az~{Sample_3}/2 + Distance_between_super];
       ElseIf(Num_Super == 4)
         dXYZ[Region[{Cuboid_Superconductor_1}]] = Vector[-ax~{Stationnary_Sample}/2 + ax~{Sample_1}/2,-ay~{Stationnary_Sample}/2 + ay~{Sample_1}/2 -ay~{Stationnary_Sample}/2, -az~{Stationnary_Sample}/2 -az~{Sample_1}/2 -Distance_between_super];
-        dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., 0 , 0];
+        dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., 0. , 0.];
         dXYZ[Region[{Cuboid_Superconductor_3}]] = Vector[-ax~{Stationnary_Sample}/2 + ax~{Sample_3}/2, -ay~{Stationnary_Sample}/2 + ay~{Sample_3}/2 -ay~{Stationnary_Sample}/2,  +az~{Stationnary_Sample}/2 +az~{Sample_3}/2 + Distance_between_super];
-        dXYZ[Region[{Cuboid_Superconductor_4}]] = Vector[0., 0 , 0];
+        dXYZ[Region[{Cuboid_Superconductor_4}]] = Vector[0., 0. , 0.];
 
         dXYZ[Region[{Surface_Cuboid_Superconductor_1}]] = Vector[-ax~{Stationnary_Sample}/2 + ax~{Sample_1}/2,-ay~{Stationnary_Sample}/2 + ay~{Sample_1}/2 -ay~{Stationnary_Sample}/2, -az~{Stationnary_Sample}/2 -az~{Sample_1}/2 -Distance_between_super];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., 0 , 0];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., 0. , 0.];
         dXYZ[Region[{Surface_Cuboid_Superconductor_3}]] = Vector[-ax~{Stationnary_Sample}/2 + ax~{Sample_3}/2, -ay~{Stationnary_Sample}/2 + ay~{Sample_3}/2 -ay~{Stationnary_Sample}/2,  +az~{Stationnary_Sample}/2 +az~{Sample_3}/2 + Distance_between_super];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_4}]] = Vector[0., 0 , 0];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_4}]] = Vector[0., 0. , 0.];
       EndIf
     ElseIf(Bulk_Disposition == 2)
       // Pojection with Half offset along y
@@ -163,37 +163,37 @@ Macro AllOtherBulkPositionning
   If(Time_step<=(Time_step_per_cycle/2))
     //************ Definition of change in position ****************//
     If(Approach_Type == 1)
-      dXYZ[Region[{Cuboid_Superconductor_1}]] = Vector[0.,0 , ((Approach_speed*Time_step_amplitude))];
-      dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., 0 , 0];
-      dXYZ[Region[{Cuboid_Superconductor_3}]] = Vector[0., 0 , -((Approach_speed*Time_step_amplitude))];
+      dXYZ[Region[{Cuboid_Superconductor_1}]] = Vector[0.,0. , ((Approach_speed*Time_step_amplitude))];
+      dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., 0. , 0.];
+      dXYZ[Region[{Cuboid_Superconductor_3}]] = Vector[0., 0. , -((Approach_speed*Time_step_amplitude))];
 
-      dXYZ[Region[{Surface_Cuboid_Superconductor_1}]] = Vector[0.,0 , ((Approach_speed*Time_step_amplitude))];
-      dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., 0 , 0];
-      dXYZ[Region[{Surface_Cuboid_Superconductor_3}]] = Vector[0., 0 , -((Approach_speed*Time_step_amplitude))];
+      dXYZ[Region[{Surface_Cuboid_Superconductor_1}]] = Vector[0.,0. , ((Approach_speed*Time_step_amplitude))];
+      dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., 0. , 0.];
+      dXYZ[Region[{Surface_Cuboid_Superconductor_3}]] = Vector[0., 0. , -((Approach_speed*Time_step_amplitude))];
 
       If(Num_Super == 4)
-        dXYZ[Region[{Cuboid_Superconductor_4}]] = Vector[0., 0 , 0];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_4}]] = Vector[0., 0 , 0];
+        dXYZ[Region[{Cuboid_Superconductor_4}]] = Vector[0., 0. , 0.];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_4}]] = Vector[0., 0. , 0.];
       EndIf
     ElseIf(Approach_Type == 2)
       If(Num_Super == 4)
-        dXYZ[Region[{Cuboid_Superconductor_1}]] = Vector[0,0,0];
-        dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., 0 , 0];
-        dXYZ[Region[{Cuboid_Superconductor_3}]] = Vector[0, 0, 0];
-        dXYZ[Region[{Cuboid_Superconductor_4}]] = Vector[0., (Approach_speed*Time_step_amplitude) , 0];
+        dXYZ[Region[{Cuboid_Superconductor_1}]] = Vector[0.,0.,0.];
+        dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., 0. , 0.];
+        dXYZ[Region[{Cuboid_Superconductor_3}]] = Vector[0., 0., 0.];
+        dXYZ[Region[{Cuboid_Superconductor_4}]] = Vector[0., (Approach_speed*Time_step_amplitude) , 0.];
 
-        dXYZ[Region[{Surface_Cuboid_Superconductor_1}]] = Vector[0,0,0];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., 0 , 0];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_3}]] = Vector[0, 0, 0];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_4}]] = Vector[0., (Approach_speed*Time_step_amplitude) , 0];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_1}]] = Vector[0.,0.,0.];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., 0. , 0.];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_3}]] = Vector[0, 0., 0.];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_4}]] = Vector[0., (Approach_speed*Time_step_amplitude) , 0.];
       Else
-        dXYZ[Region[{Cuboid_Superconductor_1}]] = Vector[0.,-(Approach_speed*Time_step_amplitude)/2 , 0];
-        dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., (Approach_speed*Time_step_amplitude)/2 , 0];
-        dXYZ[Region[{Cuboid_Superconductor_3}]] = Vector[0., -(Approach_speed*Time_step_amplitude)/2 , 0];
+        dXYZ[Region[{Cuboid_Superconductor_1}]] = Vector[0.,-(Approach_speed*Time_step_amplitude)/2 , 0.];
+        dXYZ[Region[{Cuboid_Superconductor_2}]] = Vector[0., (Approach_speed*Time_step_amplitude)/2 , 0.];
+        dXYZ[Region[{Cuboid_Superconductor_3}]] = Vector[0., -(Approach_speed*Time_step_amplitude)/2 , 0.];
 
-        dXYZ[Region[{Surface_Cuboid_Superconductor_1}]] = Vector[0.,-(Approach_speed*Time_step_amplitude)/2 , 0];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., (Approach_speed*Time_step_amplitude)/2 , 0];
-        dXYZ[Region[{Surface_Cuboid_Superconductor_3}]] = Vector[0., -(Approach_speed*Time_step_amplitude)/2 , 0];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_1}]] = Vector[0.,-(Approach_speed*Time_step_amplitude)/2 , 0.];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_2}]] = Vector[0., (Approach_speed*Time_step_amplitude)/2 , 0.];
+        dXYZ[Region[{Surface_Cuboid_Superconductor_3}]] = Vector[0., -(Approach_speed*Time_step_amplitude)/2 , 0.];
       EndIf
     ElseIf(Approach_Type == 3)
       // Not done yet
@@ -517,7 +517,10 @@ Function{
 
 	// Rhosup qui fonctionne : 0.00000001
 	DefineConstant [RhoSupCaxis = {0.0000000, Highlight "LightGreen", Name "1Input/3Material Properties/9999Artificial supplementary resistivity along c-axis"}];
-	DefineConstant[ Anisotropy_Factor = {1, Highlight "LightGreen",
+  If(Modelled_Samples == 3)
+    RhoSupCaxis = 0.00000001;
+  EndIf
+  DefineConstant[ Anisotropy_Factor = {1, Highlight "LightGreen",
 			Name Sprintf("1Input/3Material Properties/4Anisostropy Factor"), Visible 1}];
 
 	For i In {1:Num_Super}
@@ -766,15 +769,15 @@ PostOperation {
                 EndIf
         				If(Active_approach==0)
           					Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [A/m2]" ];
-          					Print[ e, OnElementsOf OmegaC , File "res/e.pos", Name "e [V/m]" ]; 
-          					Print[ b, OnElementsOf Omega , File "res/b.pos", Name "b [T]" ];
+          					Print[ e, OnElementsOf OmegaC , File "res/e.pos", Name "e [V/m]" ];
+          					/* Print[ b, OnElementsOf Omega , File "res/b.pos", Name "b [T]" ]; */
             				 If(formulation == coupled_formulation)
             						Print[ a, OnElementsOf Omega_a , File "res/a.pos", Name "a" ];
             				EndIf
         		    EndIf
             EndIf
       			If(Save_later == 1) // Exports for MATLAB plot
-        				 Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+        				 /* Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly]; */
         				Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
         				If(Num_Super == 2 || Num_Super == 4 || Num_Super == 3)
           					// Save the field a, h and j at current step
