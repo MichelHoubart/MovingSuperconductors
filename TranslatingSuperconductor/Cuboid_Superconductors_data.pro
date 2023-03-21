@@ -7,8 +7,8 @@ R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-DefineConstant [NbElemCube = 24];
-DefineConstant [LcAir = meshMult*0.006]; // Mesh size away from superconductors [m]
+DefineConstant [NbElemCube = 12];
+DefineConstant [LcAir = meshMult*0.0012]; // Mesh size away from superconductors [m]
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
@@ -16,7 +16,7 @@ a_formulation = 6;
 coupled_formulation = 5;
 
 // ---- Parameters of the array ----
-
+Str_SaveDir = "res\For_Matlab\";
 DefineConstant[
   Modelled_Samples = {1, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
@@ -25,7 +25,7 @@ DefineConstant[
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ];
 DefineConstant[
-  Num_Super = {3, Highlight "Red", Choices{
+  Num_Super = {2, Highlight "Red", Choices{
         1="1 : Computing the initial condition",
         3="3 : Partial Halbach array",
         5="5 : Complete Halbach array",
@@ -83,7 +83,7 @@ EndIf
 // ---- Displacement of the bulk ----
 //Inputs
 DefineConstant[
-  Active_approach = {1, Highlight "LightYellow", Choices{
+  Active_approach = {0, Highlight "LightYellow", Choices{
         0="0 : No approach: Initial condition",
         1="1 : Approach + Retract",
         2="2 : Approach + Flux creep"}
@@ -114,7 +114,7 @@ EndIf
 ContactDist_TransverseApproach = Minimal_separating_distance;
 DefineConstant[ Initial_Dist_Sample_Sup = {0.0015, Highlight "LightYellow", Name "3Bulks Motion/Input/5Transverse initial distance", Visible (Approach_Type == 2)}];
 DefineConstant[ Approach_cycle_nb = {1, Name "3Bulks Motion/Input/6Number of approach cycles", Visible Active_approach }];
-DefineConstant[ Time_step_per_cycle = {26, Highlight "LightYellow", Name "3Bulks Motion/Input/7Time step per cycle", Visible Active_approach }];
+DefineConstant[ Time_step_per_cycle = {52, Highlight "LightYellow", Name "3Bulks Motion/Input/7Time step per cycle", Visible Active_approach }];
 DefineConstant[ Approach_speed = {0.00001, Highlight "LightYellow", Name "3Bulks Motion/Input/8Vitesse d'approche [ms^-1]", Visible Active_approach }];
 DefineConstant[ Time_step_amplitude = {(Approach_speed == 0) ? 180 : ((Maximal_separating_distance-Minimal_separating_distance)*2)/((Time_step_per_cycle)*(Approach_speed)), Highlight "LightYellow", Name "3Bulks Motion/Input/9Time step duration during motion[s]", Visible Active_approach }];
 DefineConstant [timeStart = {0, Highlight "LightGreen", Name "1Input/3Material Properties/92Initial time"}]; // Initial time [s]
@@ -122,7 +122,7 @@ DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks
 DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Properties/91Jc(B) dependence?"}];	// Superconductor exponent (n) value [-]
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 // Informations for the user
-DefineConstant[ Time_step = {13, Min 13, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
+DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Step 1, Loop  1, Name "3Bulks Motion/Real time information/2Current cycle ", Visible Active_approach}];
 // Bulks position definition
 If(Active_approach == 0)
