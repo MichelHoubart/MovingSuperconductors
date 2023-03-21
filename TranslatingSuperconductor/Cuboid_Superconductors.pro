@@ -46,15 +46,15 @@ Macro InitialFileSelection
     ElseIf(Num_Super == 4)
       If(formulation == coupled_formulation)
         If(Approach_Type == 1)
-          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_PeripheralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_CentralEch_LcCube_0_000",Str_LcCube,"_4ech.pos"]]; // Central sample
-          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_PeripheralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_CentralEch_LcCube_0_000",Str_LcCube,"_4ech.pos"]];	// Supplementary sample
+          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_periphech.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\2Ech\Last_computed_a.pos"]]; // Central sample
+          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_periphech.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\2Ech\Last_computed_a.pos"]];	// Supplementary sample
 
-          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\hfield_PeripheralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\hfield_CentralEch_LcCube_0_000",Str_LcCube,"_4ech.pos"]]; // Central sample
-          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\hfield_PeripheralEch_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\hfield_CentralEch_LcCube_0_000",Str_LcCube,"_4ech.pos"]];	// Supplementary sample
+          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_periphech.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\2Ech\Last_computed_h.pos"]]; // Central sample
+          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_periphech.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\2Ech\Last_computed_h.pos"]];	// Supplementary sample
         ElseIf(Approach_Type == 2)
           DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
           DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]]; // Central sample
@@ -737,7 +737,6 @@ Include "../lib/resolution.pro";
 ExtGmsh     = ".pos" ;
 Str_step = Sprintf("%g", (((Cycle-1)*Time_step_per_cycle)+Time_step));
 
-
 PostOperation {
     { Name MagDyn; LastTimeStepOnly realTimeSolution ;
         If(formulation == h_formulation)
@@ -778,22 +777,22 @@ PostOperation {
             EndIf
       			If(Save_later == 1) // Exports for MATLAB plot
         				 /* Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly]; */
-        				Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+        				Print[ j, OnElementsOf Omega, File StrCat[Str_SaveDir,"j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
         				If(Num_Super == 2 || Num_Super == 4 || Num_Super == 3)
           					// Save the field a, h and j at current step
           					If(formulation == a_formulation)
-          						Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+          						Print[ a, OnElementsOf Omega_a, File StrCat[Str_SaveDir,"Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
           					ElseIf(formulation == h_formulation)
-          						Print[ h, OnElementsOf Omega_h, File StrCat["res/For_Matlab/Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+          						Print[ h, OnElementsOf Omega_h, File StrCat[Str_SaveDir,"Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
           					ElseIf(formulation == coupled_formulation)
-          						Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-          						Print[ h, OnElementsOf Omega_h, File StrCat["res/For_Matlab/Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+          						Print[ a, OnElementsOf Omega_a, File StrCat[Str_SaveDir,"Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+          						Print[ h, OnElementsOf Omega_h, File StrCat[Str_SaveDir,"Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
                       // Magnetic moment and force of each sample
                     For i In {1:Num_Super}
                         Str_Sample = Sprintf("%g", i);
-                        Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
-                        Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/F_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
-                        Print[ t~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/T_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
+                        Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat[Str_SaveDir,"m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
+                        Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat[Str_SaveDir,"F_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
+                        Print[ t~{i}[Air], OnGlobal, Format Table, File StrCat[Str_SaveDir,"T_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
                     EndFor
                     EndIf
         				EndIf
