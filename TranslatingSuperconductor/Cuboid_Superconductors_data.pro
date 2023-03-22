@@ -16,7 +16,7 @@ a_formulation = 6;
 coupled_formulation = 5;
 
 // ---- Parameters of the array ----
-Str_SaveDir = "res\For_Matlab\";
+Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\4Samples\Step1\",Str_ay_6664,"mm\"];
 DefineConstant[
   Modelled_Samples = {1, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
@@ -25,7 +25,7 @@ DefineConstant[
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ];
 DefineConstant[
-  Num_Super = {2, Highlight "Red", Choices{
+  Num_Super = {4, Highlight "Red", Choices{
         1="1 : Computing the initial condition",
         3="3 : Partial Halbach array",
         5="5 : Complete Halbach array",
@@ -83,7 +83,7 @@ EndIf
 // ---- Displacement of the bulk ----
 //Inputs
 DefineConstant[
-  Active_approach = {0, Highlight "LightYellow", Choices{
+  Active_approach = {1, Highlight "LightYellow", Choices{
         0="0 : No approach: Initial condition",
         1="1 : Approach + Retract",
         2="2 : Approach + Flux creep"}

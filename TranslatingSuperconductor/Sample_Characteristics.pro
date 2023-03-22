@@ -56,11 +56,11 @@ az_666 = 0.014; // Dimension along the c-axis
 
 // Fourth sample
 ax_6664 = 0.014;
-ay_6664 = 0.005;
+ay_6664 = 0.014;
 Str_ay_6664 = Sprintf("%g", ay_6664*1000);
 az_6664 = 0.014; // Dimension along the c-axis
 
-ax_6664 = 0.012;
-ay_6664 = 0.005;
-Str_ay_6664 = Sprintf("%g", ay_6664*1000);
-az_6664 = 0.012;
+ax_6665 = 0.012;
+ay_6665 = 0.005;
+Str_ay_6665 = Sprintf("%g", ay_6664*1000);
+az_6665 = 0.012;
