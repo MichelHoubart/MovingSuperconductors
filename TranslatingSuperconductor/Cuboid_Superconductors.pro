@@ -456,9 +456,9 @@ Function{
       			jc_Base_1 = 1.7417*1e8;
       			jc_Base_2 = 1.7417*1e8;
       			jc_Base_3 = 1.7417*1e8;
-      			jc_Base_4 = 3.1786*1e8;
-      			jc_Base_5 = 2.2977*1e8;
-      			jc_Base_6 = 3.1786*1e8;
+      			jc_Base_4 = 1.7417*1e8;
+      			jc_Base_5 = 1.7417*1e8;
+      			jc_Base_6 = 1.7417*1e8;
     		EndIf
     		n_Base_1 = 20;
     		n_Base_2 = 20;
