@@ -72,7 +72,8 @@ ElseIf(Num_Super == 3 || Num_Super == 4)
 		DefineConstant[ Sample~{i} = {Config_Base~{i}, Highlight "Red", Choices{
 		123456789,
 		666,
-    6664},
+    		6664,
+    		6665},
 	Name Sprintf("2Parameters of the configuration/3Sample%g Number", i), Visible (Num_Super == 3)||(Num_Super == 4)}];
 	EndFor
 	DefineConstant [Stationnary_Sample = {Sample_2, Name "Parameters of the array/6Stationnary Sample", Visible 0}];
