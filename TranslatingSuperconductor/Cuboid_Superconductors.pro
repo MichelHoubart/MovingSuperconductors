@@ -503,7 +503,7 @@ Function{
   		C_Axis_Base_1 = 3;
   		C_Axis_Base_2 = 2;
   		C_Axis_Base_3 = 3;
-  		C_Axis_Base_4 = 0;
+  		C_Axis_Base_4 = 2;
   		C_Axis_Base_5 = 2;
   		C_Axis_Base_6 = 2;
   		For i In {1:Num_Super}
