@@ -8,7 +8,7 @@ R_inf = 0.1; // Outer shell radius [m]
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
 DefineConstant [NbElemCube = 12];
-DefineConstant [LcAir = meshMult*0.0012]; // Mesh size away from superconductors [m]
+DefineConstant [LcAir = meshMult*0.0008]; // Mesh size away from superconductors [m] next : 0.0016
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
@@ -16,14 +16,14 @@ a_formulation = 6;
 coupled_formulation = 5;
 
 // ---- Parameters of the array ----
-Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\4Samples\Step1\",Str_ay_6664,"mm\"];
+Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\4Samples\ST\Step2\",Str_ay_6665,"mm\"];
 DefineConstant[
-  Modelled_Samples = {1, Highlight "Red", Choices{
+  Modelled_Samples = {3, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
-        2="2 : Real Bulks", // Not implemented
+        2="2 : Real Bulks", // Not implemented, and this is very very sad
         3="3 : Stacked Tapes"}
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
-];
+]; // COUCOU
 DefineConstant[
   Num_Super = {4, Highlight "Red", Choices{
         1="1 : Computing the initial condition",
@@ -72,8 +72,7 @@ ElseIf(Num_Super == 3 || Num_Super == 4)
 		DefineConstant[ Sample~{i} = {Config_Base~{i}, Highlight "Red", Choices{
 		123456789,
 		666,
-    		6664,
-    		6665},
+    6664},
 	Name Sprintf("2Parameters of the configuration/3Sample%g Number", i), Visible (Num_Super == 3)||(Num_Super == 4)}];
 	EndFor
 	DefineConstant [Stationnary_Sample = {Sample_2, Name "Parameters of the array/6Stationnary Sample", Visible 0}];
@@ -91,7 +90,7 @@ DefineConstant[
 		, Name "3Bulks Motion/Input/0Model approach?", Visible 1}
 ];
 DefineConstant[
-  Approach_Type = {1, Highlight "LightYellow", Choices{
+  Approach_Type = {2, Highlight "LightYellow", Choices{
         1="1 : Parallel to main axis",
         2="2 : Perpendicular to main axis",
         3="3 : Rotation"}
@@ -122,8 +121,9 @@ DefineConstant [timeStart = {0, Highlight "LightGreen", Name "1Input/3Material P
 DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks Motion/Input/99Test Projection"}];
 DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Properties/91Jc(B) dependence?"}];	// Superconductor exponent (n) value [-]
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
+DefineConstant[ Flag_Skip1Step = {0, Highlight "LightYellow", Name "3Bulks Motion/Input/98Skip 1 Step"}];
 // Informations for the user
-DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
+DefineConstant[ Time_step = {10, Min 10, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Step 1, Loop  1, Name "3Bulks Motion/Real time information/2Current cycle ", Visible Active_approach}];
 // Bulks position definition
 If(Active_approach == 0)
@@ -149,6 +149,11 @@ Else
 EndIf
 // ---- Saving Files for Matlab post-processing? ----
 DefineConstant[ Save_later = {1, Highlight "LightGreen", Name "1Input/5Save for Matlab?", Visible 1 }];
+
+// ----  Cheat to help convergence if 1 particular position is problematic ----
+If(Flag_Skip1Step == 1)
+  Time_step_amplitude = 2*Time_step_amplitude;
+EndIf
 
 // Air volume
 Air_Lx = 0;

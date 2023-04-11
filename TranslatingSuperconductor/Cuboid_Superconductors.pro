@@ -56,15 +56,15 @@ Macro InitialFileSelection
           DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\1Ech\Periph\Last_computed_h.pos"]];	// Peripheral
           DefineConstant [initialConditionFile_h4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\2Ech\",Str_ay_6664,"mm\Save_hfield_1.pos"]];	// Supplementary sample
         ElseIf(Approach_Type == 2)
-          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]]; // Central sample
-          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\afield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]];	// Supplementary sample
+          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_a.pos"]]; // Central sample
+          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Supplementary sample
 
-          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\hfield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\hfield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]]; // Central sample
-          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\hfield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\hfield_3ST1Bulk_FCZFCEndStep1_LcCube_0_000",Str_LcCube,".pos"]];	// Supplementary sample
+          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_h.pos"]]; // Central sample
+          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Supplementary sample
 
         EndIf
       Else
@@ -503,7 +503,7 @@ Function{
   		C_Axis_Base_1 = 3;
   		C_Axis_Base_2 = 2;
   		C_Axis_Base_3 = 3;
-  		C_Axis_Base_4 = 2;
+  		C_Axis_Base_4 = 0;
   		C_Axis_Base_5 = 2;
   		C_Axis_Base_6 = 2;
   		For i In {1:Num_Super}
@@ -640,7 +640,7 @@ Function{
   		// For projection
   		If(Num_Super == 3 || Num_Super == 4)
     			//************ Definition of the position of each bulk w.r.t. their position in the Z.F.C. individual magnetization ****************//
-    			Call FirstBulkPositionning; // definition of dXYZ[] for each
+    			Call FirstBulkPositionning; // definition of dXYZ[] for each sample
 
     			//************ Selection of the initial condition File Depending on the considered modelled samples ****************//
     			Call InitialFileSelection; // Change this and define your own initial condition file if needed
@@ -663,7 +663,7 @@ Function{
   		If(Num_Super == 3 || Num_Super == 4)
           //************ Definition of the position of each bulk w.r.t. their position in the Z.F.C. individual magnetization ****************//
             Call AllOtherBulkPositionning;
-
+            
           //************ Selection of the initial condition File ****************//
       			// For projection of a
       			initialConditionFile_a = StrCat[Str_Directory_Code,"\Last_computed_a.pos"];
