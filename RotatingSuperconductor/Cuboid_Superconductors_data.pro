@@ -8,7 +8,8 @@ R_inf = 0.1; // Outer shell radius [m]
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
 DefineConstant [NbElemCube = 24]; // Mesh size in superconductors [m]
-DefineConstant [LcAir = meshMult*0.0008]; // Mesh size away from superconductors [m]
+/* DefineConstant [NbElemCube = 0.00035]; // Mesh size in superconductors [m] \\ Old */
+DefineConstant [LcAir = meshMult*0.01]; // Mesh size away from superconductors [m]
 
 //  Ideal value for the mesh:
 /* DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
@@ -20,6 +21,7 @@ a_formulation = 6;
 coupled_formulation = 5;
 
 // ---- Parameters of the configuration ----
+Str_SaveDir = StrCat["res\For_Matlab\Sample6mm_Jc(B)\2400mTo300_Relax_ThenRotate\"];
 DefineConstant[
   Modelled_Samples = {4, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
@@ -49,7 +51,7 @@ ElseIf(Modelled_Samples == 3)
 		Config_Base_1 = 123456789;
 		Config_Base_2 = 123456789;
 ElseIf(Modelled_Samples == 4)
-    		// Model Stacked tapes
+    		// Bulk WP2
     		Config_Base_1 = 222;
     		Config_Base_2 = 222;
 EndIf
@@ -106,12 +108,12 @@ Flag_Mvt_hformulation = 0;  // Only used for h-formulation --> not ideal for mov
 Approach_cycle_nb = 1;
 
 DefineConstant[ ThetaMax = {2*Pi, Highlight "LightYellow", Name "3Bulks Rotation/Input/1Maximum Value of the rotation angle", Visible 1}];
-DefineConstant[ Time_step_per_cycle = {40, Highlight "LightYellow", Name "3Bulks Rotation/Input/2Time step per cycle", Visible Active_approach }];
-DefineConstant[ Rotation_Speed = { Pi/100, Highlight "LightYellow" , Name "3Bulks Rotation/Input/3Rotation speed [Rad.s-1]", Visible Active_approach }];
+DefineConstant[ Time_step_per_cycle = {200, Highlight "LightYellow", Name "3Bulks Rotation/Input/2Time step per cycle", Visible Active_approach }];
+DefineConstant[ Rotation_Speed = { Pi/1000, Highlight "LightYellow" , Name "3Bulks Rotation/Input/3Rotation speed [Rad.s-1]", Visible Active_approach }];
 DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Highlight "LightYellow", Name "3Bulks Rotation/Input/4Time step duration during motion[s]", Visible Active_approach }];
 DefineConstant [timeStart = {0, Highlight "LightGreen", Name "1Input/3Material Properties/9Initial time"}]; // Initial time [s]
-DefineConstant[ Flag_Test_projection = {1, Highlight "LightYellow", Name "3Bulks Rotation/Input/6Test Projection"}];
-DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Properties/6Jc(B) dependence?"}];
+DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks Rotation/Input/6Test Projection"}];
+DefineConstant [Flag_JcB = {1, Highlight "LightGreen", Name "1Input/3Material Properties/6Jc(B) dependence?"}];
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 
 

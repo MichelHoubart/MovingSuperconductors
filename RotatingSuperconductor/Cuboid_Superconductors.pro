@@ -161,7 +161,7 @@ Function{
     		n[Cuboid_Superconductor~{i}] = n~{i};
 
     		// Kim's model for anisotropy : Jc(B) = Jc0/(1+(||B||/B0)); n(B) = n1 + (n0-n1)/(1+(||B||/B0)) ---> Adjust the parameters!
-    		DefineConstant[ jc0~{i} = {4.5061*1e8, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/5jc Sample%g (Am⁻²) (Kim's model)",i), Visible Flag_JcB}]; // Critical current density [A/m2] QUALITATIVE BULKS : 2.2977*1e8, STACK TAPES : 1.3037*1e8
+    		DefineConstant[ jc0~{i} = {5.4*1e8, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/5jc Sample%g (Am⁻²) (Kim's model)",i), Visible Flag_JcB}]; // Critical current density [A/m2] QUALITATIVE BULKS : 2.2977*1e8, STACK TAPES : 1.3037*1e8
     		DefineConstant [n0~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/6n0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
     		DefineConstant [n1~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/7n1 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
     		DefineConstant [B0~{i} = {0.5, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8B0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
@@ -229,7 +229,7 @@ Function{
 
     // ------- Constants -------
   	If(Active_approach==0)
-    		DefineConstant [Flag_Source = {6, Highlight "yellow", Choices{
+    		DefineConstant [Flag_Source = {7, Highlight "yellow", Choices{
     			1="Ramp up and down",
     			2="Ramp up, down and flux creep",
     			3="No source => For modelling motion",
@@ -251,7 +251,7 @@ Function{
     DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "1Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
     DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
     DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
-    DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : ((Flag_Source == 2)||(Flag_Source == 7)) ? ((((2*bmax_m)-bmin_m)/rate) + MagRelaxPeriod) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Highlight "LightBlue", Name "1Input/5Method/Final Time"}]; // Final time for source definition [s]
+    DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : ((Flag_Source == 2)||(Flag_Source == 7)) ? ((((2*bmax_m)-bmin_m)/rate)+ RotationPeriod  + MagRelaxPeriod+MagRelaxPeriod2) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Highlight "LightBlue", Name "1Input/5Method/Final Time"}]; // Final time for source definition [s]
     DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
     DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
     DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
@@ -315,8 +315,8 @@ Function{
   	If(Time_step==1) // First step
   		  // For projection
   			//************ Initial condition File Depending on the considered modelled samples ****************//
-        DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\1Bulk_45minFC\LcCube24elem\a_2_7max_03min.pos"]];	// Central
-        DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\1Bulk_45minFC\LcCube24elem\h_2_7max_03min.pos"]];	// Central
+        DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\24elem\a_2_7max_03min.pos"]];	// Central
+        DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\24elem\h_2_7max_03min.pos"]];	// Central
   			// Read a from File
   			GmshRead[ initialConditionFile_a1,1];
 
@@ -418,19 +418,21 @@ PostOperation {
           					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
           					Print[ a, OnElementsOf Omega_a, File StrCat["Last_computed_a", ExtGmsh],Format Gmsh,
           					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-                    Print[ b, OnElementsOf Omega , File StrCat["res/For_Matlab/b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
-                    Print[ j, OnElementsOf Omega, File StrCat["res/For_Matlab/j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+                    Print[ b, OnElementsOf Omega , File StrCat[Str_SaveDir,"b_",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+                    Print[ j, OnElementsOf Omega, File StrCat[Str_SaveDir,"j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
+                    Print[ b, OnElementsOf Omega , File StrCat[Str_SaveDir,"b_",Str_step,"allstep.pos"]];
+                    Print[ j, OnElementsOf Omega, File StrCat[Str_SaveDir,"j_wholedomain",Str_step,"allstep.pos"]];
 
                     // Magnetic moment and force of each sample
                     For i In {1:Num_Super}
                         Str_Sample = Sprintf("%g", i);
-                        Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat["res/For_Matlab/m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
-                        Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/F_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
-                        Print[ t~{i}[Air], OnGlobal, Format Table, File StrCat["res/For_Matlab/T_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
+                        Print[ mSample~{i}, OnRegion Cuboid_Superconductor~{i}, Format Table , File StrCat[Str_SaveDir,"m_Step",Str_step,"_Sample",Str_Sample,".txt"]];
+                        Print[ f~{i}[Air], OnGlobal, Format Table, File StrCat[Str_SaveDir,"F_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
+                        Print[ t~{i}[Air], OnGlobal, Format Table, File StrCat[Str_SaveDir,"T_Step",Str_step,"_OnSample",Str_Sample,".txt"]  ];
                     EndFor
                     If(Active_approach==1)
-                        Print[ a, OnElementsOf Omega_a, File StrCat["res/For_Matlab/Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-              					Print[ h, OnElementsOf Omega_h, File StrCat["res/For_Matlab/Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+                        Print[ a, OnElementsOf Omega_a, File StrCat[Str_SaveDir,"Save_afield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+              					Print[ h, OnElementsOf Omega_h, File StrCat[Str_SaveDir,"Save_hfield_",Str_step,".pos"],Format Gmsh, OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
                     EndIf
                 EndIf
       					Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [A/m2]" ];
