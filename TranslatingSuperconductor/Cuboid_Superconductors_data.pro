@@ -18,14 +18,15 @@ coupled_formulation = 5;
 // ---- Parameters of the array ----
 Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\4Samples\ST\Step2\",Str_ay_6665,"mm\"];
 DefineConstant[
-  Modelled_Samples = {3, Highlight "Red", Choices{
+  Modelled_Samples = {4, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
         2="2 : Real Bulks", // Not implemented, and this is very very sad
-        3="3 : Stacked Tapes"}
+        3="3 : Stacked Tapes",
+        4="4 : Samples ATZ"}
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ]; // COUCOU
 DefineConstant[
-  Num_Super = {4, Highlight "Red", Choices{
+  Num_Super = {1, Highlight "Red", Choices{
         1="1 : Computing the initial condition",
         3="3 : Partial Halbach array",
         5="5 : Complete Halbach array",
@@ -51,6 +52,14 @@ If(Num_Super == 1 ||Num_Super == 2)
     	Name "2Parameters of the configuration/3Sample1 Number", Visible (Num_Super == 1)}];
     	DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
     	Sample_2 = 6665; // Supplementary sample
+  ElseIf(Modelled_Samples == 4)
+      DefineConstant[ Sample_1 = {43, Highlight "Red", Choices{
+        41,    // Truncated cube left
+        42,    // Full cube
+        43  }, // Truncated cube right
+      Name "2Parameters of the configuration/3Sample1 Number", Visible (Num_Super == 1)}];
+      DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
+      Sample_2 = 6664; // Supplementary sample
   EndIf
 ElseIf(Num_Super == 3 || Num_Super == 4)
 	If(Modelled_Samples == 1)
@@ -67,12 +76,21 @@ ElseIf(Num_Super == 3 || Num_Super == 4)
 		Config_Base_2 = 123456789;
 		Config_Base_3 = 123456789;
 		Config_Base_4 = 6665;
+  ElseIf(Modelled_Samples == 4)
+  		// Truncated HA
+  		Config_Base_1 = 41;
+  		Config_Base_2 = 42;
+  		Config_Base_3 = 43;
+  		Config_Base_4 = 6665;
 	EndIf
 	For i In {1:Num_Super}
 		DefineConstant[ Sample~{i} = {Config_Base~{i}, Highlight "Red", Choices{
 		123456789,
 		666,
-    6664},
+    6664,
+    41,
+    42,
+    43},
 	Name Sprintf("2Parameters of the configuration/3Sample%g Number", i), Visible (Num_Super == 3)||(Num_Super == 4)}];
 	EndFor
 	DefineConstant [Stationnary_Sample = {Sample_2, Name "Parameters of the array/6Stationnary Sample", Visible 0}];
@@ -90,7 +108,7 @@ DefineConstant[
 		, Name "3Bulks Motion/Input/0Model approach?", Visible 1}
 ];
 DefineConstant[
-  Approach_Type = {2, Highlight "LightYellow", Choices{
+  Approach_Type = {1, Highlight "LightYellow", Choices{
         1="1 : Parallel to main axis",
         2="2 : Perpendicular to main axis",
         3="3 : Rotation"}
@@ -123,7 +141,7 @@ DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Pr
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 DefineConstant[ Flag_Skip1Step = {0, Highlight "LightYellow", Name "3Bulks Motion/Input/98Skip 1 Step"}];
 // Informations for the user
-DefineConstant[ Time_step = {10, Min 10, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
+DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Step 1, Loop  1, Name "3Bulks Motion/Real time information/2Current cycle ", Visible Active_approach}];
 // Bulks position definition
 If(Active_approach == 0)

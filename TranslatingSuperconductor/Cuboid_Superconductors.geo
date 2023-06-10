@@ -59,7 +59,9 @@ ElseIf(Approach_Type == 2)
 EndIf
 
 // Creation of the 3 Bulk, their initial positions depend both on the chosen displacement type and on the disposition chosen.
-If(Num_Super == 2)
+If (Modelled_Samples == 4)
+	Include "TruncatedHA.geo";
+ElseIf(Num_Super == 2)
 	// Initial condition for FCZFC
 	Include "FCZFC_Initialcondition.geo";
 ElseIf(Num_Super == 4)
@@ -72,7 +74,7 @@ EndIf
 
 
 //****************** Volume and Physical definition ******************//
-If((Num_Super == 3)||(Num_Super == 4))
+If(((Num_Super == 3)||(Num_Super == 4)) && (Modelled_Samples!=4))
 	Include "Air_Between_Super123.geo"; // Regular mesh between super
 	If((Num_Super==4))
 		Include "Air_Between_Super24.geo";
