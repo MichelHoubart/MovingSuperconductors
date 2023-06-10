@@ -104,3 +104,5 @@ EndFor
 // Color Red{Surface{f_c_Tot()};} // Air + Air inf
 // Color Green {Surface{f_c_Tot()};} // Cylinder
 // Color SkyBlue {Surface{f_c_Tot(5),f_c_Tot(11),f_c_Tot(17)};}
+//+
+Show "*";

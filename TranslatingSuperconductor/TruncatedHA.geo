@@ -20,17 +20,59 @@ airVol = 1234; */
 
 //**** Creation of Truncated Halbach array ****//
 If(Num_Super==1)
+  i=1;
+	LcCube = ax~{Sample~{i}}/NbElemCube;
 	If(Sample_1==41)
-		i=1;
+		IdPositionInTHA = 1;
 		Include "HalfCube.geo";
 	ElseIf(Sample_1==42)
 		Block(materialVol~{i}) = {x_Bottom_Super, y_Bottom_Super, z_Bottom_Super, ax~{Sample~{i}}, ay~{Sample~{i}}, az~{Sample~{i}}};
 	ElseIf(Sample_1==43)
-		i=3;
+		IdPositionInTHA = 3;
 		Include "HalfCube.geo";
 	EndIf
+	//**** Handle different tags and the mesh ****//
+	If((IdPositionInTHA == 1)||(IdPositionInTHA == 3))
+			// Peripheral samples
+			f_c~{i}() = Boundary{Volume{materialVol~{i}[1]};};
+			l_c~{i}() = Boundary{Surface{f_c~{i}()};};
+			p_c~{i}() = PointsOf{Line{l_c~{i}()};};
+			Characteristic Length{p_c~{i}()} = LcCube;
+			MaterialVol_Tot() += {materialVol~{i}[1]};
+			f_c_Tot() += {f_c~{i}()};
+			l_c_Tot() += {l_c~{i}()};
+			p_c_Tot() += {p_c~{i}()};
+	ElseIf(IdPositionInTHA == 2)
+			// Central Sample
+			f_c~{i}() = Boundary{Volume{materialVol~{i}};};
+			l_c~{i}() = Boundary{Surface{f_c~{i}()};};
+			p_c~{i}() = PointsOf{Line{l_c~{i}()};};
+			Characteristic Length{p_c~{i}()} = LcCube;
+			MaterialVol_Tot() += {materialVol~{i}};
+			f_c_Tot() += {f_c~{i}()};
+			l_c_Tot() += {l_c~{i}()};
+			p_c_Tot() += {p_c~{i}()};
+			Printf("Central ech: %g", f_c~{i}(0));
+
+			// Structured mesh in cube
+			Transfinite Surface(f_c~{i}(0));
+			Transfinite Surface(f_c~{i}(0)+1);
+			Transfinite Surface(f_c~{i}(0)+2);
+			Transfinite Surface(f_c~{i}(0)+3);
+			Transfinite Surface(f_c~{i}(0)+4);
+			Transfinite Surface(f_c~{i}(0)+5);
+			Transfinite Volume(materialVol~{i});
+			Recombine Surface(f_c~{i}(0));
+			Recombine Surface(f_c~{i}(0)+1);
+			Recombine Surface(f_c~{i}(0)+2);
+			Recombine Surface(f_c~{i}(0)+3);
+			Recombine Surface(f_c~{i}(0)+4);
+			Recombine Surface(f_c~{i}(0)+5);
+	EndIf
+
 ElseIf(Num_Super==3)
 	For i In {1:Num_Super}
+		  IdPositionInTHA = i;
 		  LcCube = ax~{Sample~{i}}/NbElemCube; // Mesh size in superconductors [m]
 			materialVol~{i} = i*100;
 			If((i == 1)||(i == 3))
@@ -62,22 +104,22 @@ ElseIf(Num_Super==3)
 					f_c_Tot() += {f_c~{i}()};
 					l_c_Tot() += {l_c~{i}()};
 					p_c_Tot() += {p_c~{i}()};
-					/* Printf("Central ech: %g", -f_c~{i}(0)); */
+					Printf("Central ech: %g", f_c~{i}(0));
 
 					// Structured mesh in cube
-					Transfinite Surface(-f_c~{i}(0));
-					Transfinite Surface(-f_c~{i}(0)+1);
-					Transfinite Surface(-f_c~{i}(0)+2);
-					Transfinite Surface(-f_c~{i}(0)+3);
-					Transfinite Surface(-f_c~{i}(0)+4);
-					Transfinite Surface(-f_c~{i}(0)+5);
+					Transfinite Surface(f_c~{i}(0));
+					Transfinite Surface(f_c~{i}(0)+1);
+					Transfinite Surface(f_c~{i}(0)+2);
+					Transfinite Surface(f_c~{i}(0)+3);
+					Transfinite Surface(f_c~{i}(0)+4);
+					Transfinite Surface(f_c~{i}(0)+5);
 					Transfinite Volume(materialVol~{i});
-					Recombine Surface(-f_c~{i}(0));
-					Recombine Surface(-f_c~{i}(0)+1);
-					Recombine Surface(-f_c~{i}(0)+2);
-					Recombine Surface(-f_c~{i}(0)+3);
-					Recombine Surface(-f_c~{i}(0)+4);
-					Recombine Surface(-f_c~{i}(0)+5);
+					Recombine Surface(f_c~{i}(0));
+					Recombine Surface(f_c~{i}(0)+1);
+					Recombine Surface(f_c~{i}(0)+2);
+					Recombine Surface(f_c~{i}(0)+3);
+					Recombine Surface(f_c~{i}(0)+4);
+					Recombine Surface(f_c~{i}(0)+5);
 			EndIf
 			z_Bottom_Super = z_Bottom_Super + az~{Sample~{i}} + Distance_between_super;
 	EndFor

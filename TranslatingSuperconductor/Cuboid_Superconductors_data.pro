@@ -53,7 +53,7 @@ If(Num_Super == 1 ||Num_Super == 2)
     	DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
     	Sample_2 = 6665; // Supplementary sample
   ElseIf(Modelled_Samples == 4)
-      DefineConstant[ Sample_1 = {43, Highlight "Red", Choices{
+      DefineConstant[ Sample_1 = {41, Highlight "Red", Choices{
         41,    // Truncated cube left
         42,    // Full cube
         43  }, // Truncated cube right
