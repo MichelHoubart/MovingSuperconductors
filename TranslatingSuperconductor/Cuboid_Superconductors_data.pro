@@ -1,14 +1,18 @@
 // Include cross data
 Include "Sample_Characteristics.pro";
-
+Rotation_Speed= 0; // There is a fight with the rotating super code, because they share the same source definition... should fix thix
 // ---- Domain Dimensions ----
 R_air = 0.08; // Inner shell radius [m]
 R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-DefineConstant [NbElemCube = 12];
-DefineConstant [LcAir = meshMult*0.0008]; // Mesh size away from superconductors [m] next : 0.0016
+/* DefineConstant [NbElemCube = 12];
+DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m] next : 0.0016 */
+
+DefineConstant [NbElemCube = 13];
+DefineConstant [NbElemHalfCube = 13];
+DefineConstant [LcAir = meshMult*0.0014]; // Mesh size away from superconductors [m] next : 0.0016
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
@@ -16,7 +20,8 @@ a_formulation = 6;
 coupled_formulation = 5;
 
 // ---- Parameters of the array ----
-Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\4Samples\ST\Step2\",Str_ay_6665,"mm\"];
+/* Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\THA\"]; */
+Str_SaveDir = StrCat["IniCond_coupled_formulation\12elem\THA\Ech42\"];
 DefineConstant[
   Modelled_Samples = {4, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
@@ -53,12 +58,12 @@ If(Num_Super == 1 ||Num_Super == 2)
     	DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
     	Sample_2 = 6665; // Supplementary sample
   ElseIf(Modelled_Samples == 4)
-      DefineConstant[ Sample_1 = {41, Highlight "Red", Choices{
+      DefineConstant[ Sample_1 = {42, Highlight "Red", Choices{
         41,    // Truncated cube left
         42,    // Full cube
         43  }, // Truncated cube right
       Name "2Parameters of the configuration/3Sample1 Number", Visible (Num_Super == 1)}];
-      DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
+      DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 1}];
       Sample_2 = 6664; // Supplementary sample
   EndIf
 ElseIf(Num_Super == 3 || Num_Super == 4)
@@ -81,7 +86,7 @@ ElseIf(Num_Super == 3 || Num_Super == 4)
   		Config_Base_1 = 41;
   		Config_Base_2 = 42;
   		Config_Base_3 = 43;
-  		Config_Base_4 = 6665;
+  		Config_Base_4 = 42;
 	EndIf
 	For i In {1:Num_Super}
 		DefineConstant[ Sample~{i} = {Config_Base~{i}, Highlight "Red", Choices{
@@ -93,7 +98,7 @@ ElseIf(Num_Super == 3 || Num_Super == 4)
     43},
 	Name Sprintf("2Parameters of the configuration/3Sample%g Number", i), Visible (Num_Super == 3)||(Num_Super == 4)}];
 	EndFor
-	DefineConstant [Stationnary_Sample = {Sample_2, Name "Parameters of the array/6Stationnary Sample", Visible 0}];
+	DefineConstant [Stationnary_Sample = {Sample_2, Name "2Parameters of the configuration/4Stationnary Sample", Visible 1}];
 Else
 	// 5 Samples, Not implemented
 EndIf
@@ -101,7 +106,7 @@ EndIf
 // ---- Displacement of the bulk ----
 //Inputs
 DefineConstant[
-  Active_approach = {1, Highlight "LightYellow", Choices{
+  Active_approach = {0, Highlight "LightYellow", Choices{
         0="0 : No approach: Initial condition",
         1="1 : Approach + Retract",
         2="2 : Approach + Flux creep"}
@@ -132,7 +137,7 @@ EndIf
 ContactDist_TransverseApproach = Minimal_separating_distance;
 DefineConstant[ Initial_Dist_Sample_Sup = {0.0015, Highlight "LightYellow", Name "3Bulks Motion/Input/5Transverse initial distance", Visible (Approach_Type == 2)}];
 DefineConstant[ Approach_cycle_nb = {1, Name "3Bulks Motion/Input/6Number of approach cycles", Visible Active_approach }];
-DefineConstant[ Time_step_per_cycle = {52, Highlight "LightYellow", Name "3Bulks Motion/Input/7Time step per cycle", Visible Active_approach }];
+DefineConstant[ Time_step_per_cycle = {26, Highlight "LightYellow", Name "3Bulks Motion/Input/7Time step per cycle", Visible Active_approach }];
 DefineConstant[ Approach_speed = {0.00001, Highlight "LightYellow", Name "3Bulks Motion/Input/8Vitesse d'approche [ms^-1]", Visible Active_approach }];
 DefineConstant[ Time_step_amplitude = {(Approach_speed == 0) ? 180 : ((Maximal_separating_distance-Minimal_separating_distance)*2)/((Time_step_per_cycle)*(Approach_speed)), Highlight "LightYellow", Name "3Bulks Motion/Input/9Time step duration during motion[s]", Visible Active_approach }];
 DefineConstant [timeStart = {0, Highlight "LightGreen", Name "1Input/3Material Properties/92Initial time"}]; // Initial time [s]

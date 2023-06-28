@@ -2,7 +2,7 @@
 Include "Cuboid_Superconductors_data.pro";
 Include "Sample_Characteristics.pro";
 Macro InitialFileSelection
-  If(Modelled_Samples == 1 || Modelled_Samples == 3)
+  If(Modelled_Samples == 1 || Modelled_Samples == 3 || Modelled_Samples == 4)
     If(Num_Super == 3)
       If(formulation == a_formulation)
       // Qualitative Bulks	CARE Lc_cube --> meshMult*0.00035 (Possible to change to 0.0005 though)
@@ -18,6 +18,15 @@ Macro InitialFileSelection
         // DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\Initial_Conditions\Ini_cond_a_Maxdist", Str_Maxdist ,"_66613_Lccube_0_000",Str_LcCube,"_Jc4.pos"]];	// Peripheral
       ElseIf(formulation == coupled_formulation)
         If(RhoSupCaxis == 0)  // Qualitative Bulks (Isotropic behaviour)
+        If(Modelled_Samples == 4)
+          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech41\Last_computed_a",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech42\Last_computed_a",".pos"]];	// Central
+          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech43\Last_computed_a",".pos"]];	// Peripheral
+
+          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech41\Last_computed_h",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech42\Last_computed_h",".pos"]];	// Central
+          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech43\Last_computed_h",".pos"]];	// Peripheral
+        Else
           DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_periphech",".pos"]];	// Peripheral
           DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_centralech",".pos"]];	// Central
           DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_periphech",".pos"]];	// Peripheral
@@ -25,6 +34,7 @@ Macro InitialFileSelection
           DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_periphech",".pos"]];	// Peripheral
           DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_centralech",".pos"]];	// Central
           DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_periphech",".pos"]];	// Peripheral
+        EndIf
         ElseIf(Modelled_Samples == 1) // Qualitative Stacked Tapes (14x14x14 mm3)
           DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_PeripheralEch_LcCube_0_000",Str_LcCube,"_Ani.pos"]];	// Peripheral
           DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_CentralEch_LcCube_0_000",Str_LcCube,"_Ani.pos"]];	// Central
@@ -286,7 +296,7 @@ Macro ReadFirstInitialCondition
 
     // a_fromFile[Surface_Cuboid_Superconductor_2] = Vector[0, 0, 0];					// To see only the impact of the assembly process in the central bulk
     // h_fromFile[Cuboid_Superconductor_2] = Vector[0, 0, 0];					// To see only the impact of the assembly process in the central bulk
-    If((Modelled_Samples == 1)||(Modelled_Samples == 3))
+    If((Modelled_Samples == 1)||(Modelled_Samples == 3)||(Modelled_Samples == 4))
       If((Num_Super == 4)&&(Approach_Type == 2))
         a_fromFile[Surface_Cuboid_Superconductor_3] = VectorField[XYZ[]-dXYZ[]]{3};
         h_fromFile[Cuboid_Superconductor_3] = VectorField[XYZ[]-dXYZ[]]{6};
@@ -406,13 +416,21 @@ Group {
         IsThereSuper = 1;
         Flag_LinearProblem = 0;
     ElseIf(MaterialType == 2)
-        Copper += Region[ MATERIAL1 ];
-    		Copper += Region[ MATERIAL2 ];
-    		Bulk1 += Region[ MATERIAL1 ];
-    		Bulk2 += Region[ MATERIAL2 ];
-        Cond1 += Region[ MATERIAL1 ];
-		    Cond2 += Region[ MATERIAL2 ];
-        BndOmegaC += Region[ BND_MATERIAL ];
+        For i In {1:Num_Super}
+          DefineGroup [Cuboid_Superconductor~{i}];
+          /* Super += Region[ BULK~{i} ]; */
+          Cond += Region[{ BULK~{i} }];
+          Copper += Region[ BULK~{i} ];
+          Cuboid_Superconductor~{i} = Region[ BULK~{i} ];
+          Surface_Cuboid_Superconductor~{i} = Region[ Boundary_BULK~{i} ];
+          Surface_Superconductors += Region[ Boundary_BULK~{i} ];
+          BndOmegaC += Region[ Boundary_BULK~{i} ];
+          Layer~{i} =  Region[Air, OnOneSideOf Boundary_BULK~{i}];
+          Vol_Layer += Region[Layer~{i}];
+        EndFor
+        Vol_Force = Region [ Vol_Layer ];
+        IsThereSuper = 0;
+        Flag_LinearProblem = 1;
     ElseIf(MaterialType == 3)
         FerroAnhy += Region[ MATERIAL ];
         IsThereFerro = 1;
@@ -452,6 +470,13 @@ Function{
       			jc_Base_4 = 2.6133*1e8;
       			jc_Base_5 = 2.6133*1e8;
       			jc_Base_6 = 3.1786*1e8;
+        ElseIf(Modelled_Samples == 4)
+            jc_Base_1 = 2.6133*(0.97/0.8)*1e8;
+            jc_Base_2 = 2.6133*(0.97/0.8)*1e8;
+            jc_Base_3 = 2.6133*(0.97/0.8)*1e8;
+            jc_Base_4 = 2.6133*(0.97/0.8)*1e8;
+            jc_Base_5 = 2.6133*(0.97/0.8)*1e8;
+            jc_Base_6 = 3.1786*(0.97/0.8)*1e8;
     		ElseIf(Modelled_Samples == 3)// Stacked tapes
       			jc_Base_1 = 1.7417*1e8;
       			jc_Base_2 = 1.7417*1e8;
@@ -649,21 +674,28 @@ Function{
           Call ReadFirstInitialCondition;
 		  Else
       		// MAGNETISATION ONLY, Whatever From File, except for test
-      			initialConditionFile_Cylinder1_h = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\hfield_CentralEch_LcCube_0_00035",".pos"];
+            dXYZ[] = Vector[0., 0 , 0];
+      			initialConditionFile_Cylinder1_h = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST2\Last_computed_h",".pos"];
       			// initialConditionFile_Cylinder1_h = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Last_computed_h.pos"];
       			GmshRead[initialConditionFile_Cylinder1_h,43];
-      			h_fromFile[Super] = VectorField[XYZ[]]{43};
+            If(MaterialType==1)
+      			   h_fromFile[Super] = VectorField[XYZ[]]{43};
+            ElseIf(MaterialType==2)
+               h_fromFile[Copper] = VectorField[XYZ[]]{43};
+            EndIf
+            /* h_fromFile[Super] = Vector[0,0,0]; */
 
-      			initialConditionFile_Cylinder1_a = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_CentralEch_LcCube_0_00035",".pos"];
+      			initialConditionFile_Cylinder1_a = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST2\Last_computed_a",".pos"];
       			// initialConditionFile_Cylinder1_a = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Last_computed_a.pos"];
       			GmshRead[initialConditionFile_Cylinder1_a,44];
       			a_fromFile[Surface_Superconductors] = VectorField[XYZ[]]{44};
+            /* a_fromFile[Surface_Superconductors] = Vector[0,0,0]; */
 		  EndIf
 	Else	// All other steps
   		If(Num_Super == 3 || Num_Super == 4)
           //************ Definition of the position of each bulk w.r.t. their position in the Z.F.C. individual magnetization ****************//
             Call AllOtherBulkPositionning;
-            
+
           //************ Selection of the initial condition File ****************//
       			// For projection of a
       			initialConditionFile_a = StrCat[Str_Directory_Code,"\Last_computed_a.pos"];
@@ -682,8 +714,8 @@ Function{
       			initialConditionFile_h = StrCat[Str_Directory_Code,"\Last_computed_h.pos"];
       			GmshRead[initialConditionFile_a,51];
       			GmshRead[initialConditionFile_h,52];
-      			a_fromFile[Surface_Cuboid_Superconductor_1] =   VectorField[XYZ[]]{51};
-      			h_fromFile[Cuboid_Superconductor_1] =   VectorField[XYZ[]]{52};
+      			a_fromFile[Surface_Cuboid_Superconductor_1] = VectorField[XYZ[]]{51};
+      			h_fromFile[Cuboid_Superconductor_1] = VectorField[XYZ[]]{52};
   		EndIf
 	EndIf
 }
@@ -697,6 +729,8 @@ Constraint {
 			EndIf
 			If(((formulation == a_formulation)&& (Active_approach==1|| Active_approach == 2)))
 				{ Region Omega ; Type InitFromResolution ; NameOfResolution ProjectionInit ; }
+      ElseIf((Active_approach==1|| Active_approach == 2))
+        /* { Region Omega ; Type InitFromResolution ; NameOfResolution ProjectionInit ; } */
 			EndIf
         }
     }
@@ -711,7 +745,7 @@ Constraint {
     { Name h ;
         Case {
 			If((Active_approach==1|| Active_approach == 2) || Flag_Test_projection == 1)
-					// { Region Omega ; Type InitFromResolution ; NameOfResolution ProjectionInit ; }
+					 /* { Region Omega ; Type InitFromResolution ; NameOfResolution ProjectionInit ; } */
 			EndIf
         }
     }
@@ -765,6 +799,10 @@ PostOperation {
           					OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
           					Print[ a, OnElementsOf Omega_a, File StrCat["Last_computed_a", ExtGmsh],Format Gmsh,
 					          OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+                    Print[ h, OnElementsOf Omega_h, File StrCat[Str_SaveDir,"Last_computed_h", ExtGmsh], Format Gmsh,
+                    OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
+                    Print[ a, OnElementsOf Omega_a, File StrCat[Str_SaveDir,"Last_computed_a", ExtGmsh],Format Gmsh,
+                    OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
                 EndIf
         				If(Active_approach==0)
           					Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [A/m2]" ];

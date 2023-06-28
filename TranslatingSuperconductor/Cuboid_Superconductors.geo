@@ -1,4 +1,5 @@
 SetFactory("OpenCASCADE");
+Geometry.Normals = 0;
 // Include cross data
 Include "Cuboid_Superconductors_data.pro";
 Include "Sample_Characteristics.pro";
@@ -7,9 +8,7 @@ Include "Sample_Characteristics.pro";
 airVol = 1234;
 Block(airVol) = {-Air_Lx/2, -Air_Ly/2, -Air_Lz/2, Air_Lx, Air_Ly, Air_Lz};
 
-
 //****************** Definition of the bulk superconductors ******************//
-
 // Dummy numbering, change this in a clean code (This odd numbering is caused by the fact that the sample numbering change when we add more bulks...
 // The "True_numbering" variable labels each position in the array with a single nunmber whatever the number of sample in the array).
 If(Num_Super == 1||Num_Super == 2)
@@ -83,12 +82,23 @@ If(((Num_Super == 3)||(Num_Super == 4)) && (Modelled_Samples!=4))
 	Physical Volume("Air", AIR) = {volAir,AirBetweenSuper()};
 Else
 	volAir = BooleanDifference{ Volume{airVol}; Delete; }{ Volume{MaterialVol_Tot()};};
-	Physical Volume("Air", AIR) = {volAir};
+	Physical Volume("Air", AIR) = {volAir[0]};
 EndIf
-
 Physical Surface("Boundary material", BND_MATERIAL) = {f_c_Tot()};
 f_s() = Boundary{Volume{volAir};};
 l_s() = Boundary{Surface{f_s(0),f_s(1),f_s(2),f_s(3),f_s(4),f_s(5)};};
+f_s(0) = -f_s(0);
+f_s(1) = -f_s(1);
+f_s(4) = -f_s(4);
+
+// Debug the orientation of the suface
+/* Printf("Boundary Air: %g", f_s(0));
+Printf("Boundary Air: %g", f_s(1));
+Printf("Boundary Air: %g", f_s(2));
+Printf("Boundary Air: %g", f_s(3));
+Printf("Boundary Air: %g", f_s(4));
+Printf("Boundary Air: %g", f_s(5)); */
+
 p_s() = PointsOf{Line{l_s()};};
 Characteristic Length{p_s()} = LcAir;
 Physical Surface("Boundary air", SURF_OUT) = {f_s(0),f_s(1),f_s(2),f_s(3),f_s(4),f_s(5)};
@@ -104,5 +114,3 @@ EndFor
 // Color Red{Surface{f_c_Tot()};} // Air + Air inf
 // Color Green {Surface{f_c_Tot()};} // Cylinder
 // Color SkyBlue {Surface{f_c_Tot(5),f_c_Tot(11),f_c_Tot(17)};}
-//+
-Show "*";
