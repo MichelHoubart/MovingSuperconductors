@@ -1,4 +1,5 @@
 SetFactory("OpenCASCADE");
+// Debug the orientation of the suface
 Geometry.Normals = 0;
 // Include cross data
 Include "Cuboid_Superconductors_data.pro";
@@ -6,7 +7,12 @@ Include "Sample_Characteristics.pro";
 
 // Definition of the air volume
 airVol = 1234;
-Block(airVol) = {-Air_Lx/2, -Air_Ly/2, -Air_Lz/2, Air_Lx, Air_Ly, Air_Lz};
+
+If(Flag_THAV2)
+	Block(airVol) = {-Air_Lx/2, -Air_Ly/2+ay~{Stationnary_Sample}/2, -Air_Lz/2, Air_Lx, Air_Ly, Air_Lz};
+Else
+	Block(airVol) = {-Air_Lx/2, -Air_Ly/2, -Air_Lz/2, Air_Lx, Air_Ly, Air_Lz};
+EndIf
 
 //****************** Definition of the bulk superconductors ******************//
 // Dummy numbering, change this in a clean code (This odd numbering is caused by the fact that the sample numbering change when we add more bulks...
@@ -73,7 +79,7 @@ EndIf
 
 
 //****************** Volume and Physical definition ******************//
-If(((Num_Super == 3)||(Num_Super == 4)) && (Modelled_Samples!=4))
+If(((Num_Super == 3)||(Num_Super == 4)) && (Modelled_Samples!=4) && (Bulk_Disposition==1))
 	Include "Air_Between_Super123.geo"; // Regular mesh between super
 	If((Num_Super==4))
 		Include "Air_Between_Super24.geo";

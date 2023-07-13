@@ -19,21 +19,21 @@ Macro InitialFileSelection
       ElseIf(formulation == coupled_formulation)
         If(RhoSupCaxis == 0)  // Qualitative Bulks (Isotropic behaviour)
         If(Modelled_Samples == 4)
-          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech41\Last_computed_a",".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech42\Last_computed_a",".pos"]];	// Central
-          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech43\Last_computed_a",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THAV2\Ech41\Last_computed_a",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THAV2\Ech42\Last_computed_a",".pos"]];	// Central
+          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THAV2\Ech43\Last_computed_a",".pos"]];	// Peripheral
 
-          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech41\Last_computed_h",".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech42\Last_computed_h",".pos"]];	// Central
-          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THA\TEST\Ech43\Last_computed_h",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THAV2\Ech41\Last_computed_h",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THAV2\Ech42\Last_computed_h",".pos"]];	// Central
+          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\THAV2\Ech43\Last_computed_h",".pos"]];	// Peripheral
         Else
-          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_periphech",".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_centralech",".pos"]];	// Central
-          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\afield_periphech",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\HA_HalfMisaligned\Periph\Last_computed_a",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\HA_HalfMisaligned\Central\Last_computed_a",".pos"]];	// Central
+          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\HA_HalfMisaligned\Periph\Last_computed_a",".pos"]];	// Peripheral
 
-          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_periphech",".pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_centralech",".pos"]];	// Central
-          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\24elem\hfield_periphech",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\HA_HalfMisaligned\Periph\Last_computed_h",".pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\HA_HalfMisaligned\Central\Last_computed_h",".pos"]];	// Central
+          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\HA_HalfMisaligned\Periph\Last_computed_h",".pos"]];	// Peripheral
         EndIf
         ElseIf(Modelled_Samples == 1) // Qualitative Stacked Tapes (14x14x14 mm3)
           DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\afield_PeripheralEch_LcCube_0_000",Str_LcCube,"_Ani.pos"]];	// Peripheral

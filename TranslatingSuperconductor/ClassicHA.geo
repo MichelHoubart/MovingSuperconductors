@@ -2,7 +2,7 @@ For i In {1:Num_Super}
 	  LcCube = ax~{Sample~{i}}/NbElemCube; // Mesh size in superconductors [m]
 		materialVol~{i} = i*100;
 		If(Approach_Type == 1)
-			// Motion alog the axis of the array
+			// Motion along the axis of the array
 			If((True_Numbering~{i} == 2)||(True_Numbering~{i} == 4))
 				// Peripheral samples
 				If((Bulk_Disposition == 1)||(Bulk_Disposition == 2))
@@ -40,6 +40,19 @@ For i In {1:Num_Super}
 		f_c_Tot() += {f_c~{i}()};
 		l_c_Tot() += {l_c~{i}()};
 		p_c_Tot() += {p_c~{i}()};
+
+		// Samples faces not oriented correctly since New Gmsh
+		f_c~{i}(0) = -f_c~{i}(0);
+		f_c~{i}(2) = -f_c~{i}(2);
+		f_c~{i}(4) = -f_c~{i}(4);
+
+		// Debug the orientation of the suface
+		/* Printf("Periph ech: %g", f_c~{i}(0));
+		Printf("Periph ech: %g", f_c~{i}(1));
+		Printf("Periph ech: %g", f_c~{i}(2));
+		Printf("Periph ech: %g", f_c~{i}(3));
+		Printf("Periph ech: %g", f_c~{i}(4)); */
+
 
 
 		Transfinite Surface((i)*6+1);

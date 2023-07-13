@@ -2,13 +2,25 @@
 // Geometry
 p = newp;
 If(IdPositionInTHA==1)
-	Point(p) = {x_Bottom_Super, y_Bottom_Super, z_Bottom_Super, LcCube};
-	Point(p+1) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super, LcCube};
-	Point(p+2) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super+az~{Sample~{IdPositionInTHA}}, LcCube};
+  If(Flag_THAV2)
+		Point(p) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super, LcCube};
+		Point(p+1) = {x_Bottom_Super, y_Bottom_Super+2*ay~{Sample~{i}}, z_Bottom_Super, LcCube};
+		Point(p+2) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super+az~{Sample~{IdPositionInTHA}}, LcCube};
+	Else
+		Point(p) = {x_Bottom_Super, y_Bottom_Super, z_Bottom_Super, LcCube};
+		Point(p+1) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super, LcCube};
+		Point(p+2) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super+az~{Sample~{IdPositionInTHA}}, LcCube};
+	EndIf
 ElseIf(IdPositionInTHA==3)
-	Point(p+1) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super, LcCube};
-	Point(p+2) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super+az~{Sample~{i}}, LcCube};
-	Point(p) = {x_Bottom_Super, y_Bottom_Super, z_Bottom_Super+az~{Sample~{i}}, LcCube};
+	If(Flag_THAV2)
+		Point(p+1) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super, LcCube};
+		Point(p+2) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super+az~{Sample~{i}}, LcCube};
+		Point(p) = {x_Bottom_Super, y_Bottom_Super+2*ay~{Sample~{i}}, z_Bottom_Super+az~{Sample~{i}}, LcCube};
+	Else
+		Point(p+1) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super, LcCube};
+		Point(p+2) = {x_Bottom_Super, y_Bottom_Super+ay~{Sample~{i}}, z_Bottom_Super+az~{Sample~{i}}, LcCube};
+		Point(p) = {x_Bottom_Super, y_Bottom_Super, z_Bottom_Super+az~{Sample~{i}}, LcCube};
+	EndIf
 EndIf
 
 l = newl;

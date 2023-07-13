@@ -12,7 +12,7 @@ DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors 
 
 DefineConstant [NbElemCube = 13];
 DefineConstant [NbElemHalfCube = 13];
-DefineConstant [LcAir = meshMult*0.0014]; // Mesh size away from superconductors [m] next : 0.0016
+DefineConstant [LcAir = meshMult*0.0012]; // Mesh size away from superconductors [m] next : 0.002
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
@@ -21,9 +21,9 @@ coupled_formulation = 5;
 
 // ---- Parameters of the array ----
 /* Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\THA\"]; */
-Str_SaveDir = StrCat["IniCond_coupled_formulation\12elem\THA\Ech42\"];
+Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\HA_misaligned\"];
 DefineConstant[
-  Modelled_Samples = {4, Highlight "Red", Choices{
+  Modelled_Samples = {1, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
         2="2 : Real Bulks", // Not implemented, and this is very very sad
         3="3 : Stacked Tapes",
@@ -31,7 +31,7 @@ DefineConstant[
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ]; // COUCOU
 DefineConstant[
-  Num_Super = {1, Highlight "Red", Choices{
+  Num_Super = {3, Highlight "Red", Choices{
         1="1 : Computing the initial condition",
         3="3 : Partial Halbach array",
         5="5 : Complete Halbach array",
@@ -39,6 +39,7 @@ DefineConstant[
 		    4="Model FCZFC"}
 		, Name "2Parameters of the configuration/2Number of superconductors"}
 ];
+DefineConstant [Flag_THAV2 = {0, Name "2Parameters of the configuration/5THA periph Sample shifted?", Visible 1}];
 If(Num_Super == 1 ||Num_Super == 2)
   If(Modelled_Samples == 1)
   	DefineConstant[ Sample_1 = {666, Highlight "Red", Choices{
@@ -57,7 +58,7 @@ If(Num_Super == 1 ||Num_Super == 2)
     	Name "2Parameters of the configuration/3Sample1 Number", Visible (Num_Super == 1)}];
     	DefineConstant [Stationnary_Sample = {Sample_1, Highlight "Red", Name "2Parameters of the configuration/4Stationnary Sample", Visible 0}];
     	Sample_2 = 6665; // Supplementary sample
-  ElseIf(Modelled_Samples == 4)
+  ElseIf(Modelled_Samples == 4)// ATZ samples
       DefineConstant[ Sample_1 = {42, Highlight "Red", Choices{
         41,    // Truncated cube left
         42,    // Full cube
@@ -106,7 +107,7 @@ EndIf
 // ---- Displacement of the bulk ----
 //Inputs
 DefineConstant[
-  Active_approach = {0, Highlight "LightYellow", Choices{
+  Active_approach = {1, Highlight "LightYellow", Choices{
         0="0 : No approach: Initial condition",
         1="1 : Approach + Retract",
         2="2 : Approach + Flux creep"}
@@ -120,7 +121,7 @@ DefineConstant[
 		, Name "3Bulks Motion/Input/1Assembly process to compute", Visible Active_approach}
 ];
 DefineConstant[
-  Bulk_Disposition = {1, Highlight "LightYellow", Choices{
+  Bulk_Disposition = {3, Highlight "LightYellow", Choices{
         1="1 : Aligned",
         2="2 : Half misaligned",
         3="3 : Fully misaligned",
@@ -146,7 +147,7 @@ DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Pr
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 DefineConstant[ Flag_Skip1Step = {0, Highlight "LightYellow", Name "3Bulks Motion/Input/98Skip 1 Step"}];
 // Informations for the user
-DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
+DefineConstant[ Time_step = {13, Min 13, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Step 1, Loop  1, Name "3Bulks Motion/Real time information/2Current cycle ", Visible Active_approach}];
 // Bulks position definition
 If(Active_approach == 0)
@@ -191,6 +192,9 @@ For i In {1:Num_Super}
 	EndIf
 	Air_Lz = Air_Lz + az~{Sample~{i}};
 EndFor
+If(Flag_THAV2)
+  Air_Ly = 2*Air_Ly;
+EndIf
 
 If(Num_Super==2)
 	Air_Lz = az~{Sample~{1}};
