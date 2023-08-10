@@ -7,9 +7,9 @@ R_inf = 0.1; // Outer shell radius [m]
 
 // ---- Mesh parameters ----
 DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribution
-DefineConstant [NbElemCube = 24]; // Mesh size in superconductors [m]
+DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
 /* DefineConstant [NbElemCube = 0.00035]; // Mesh size in superconductors [m] \\ Old */
-DefineConstant [LcAir = meshMult*0.01]; // Mesh size away from superconductors [m]
+DefineConstant [LcAir = meshMult*0.003]; // Mesh size away from superconductors [m]
 
 //  Ideal value for the mesh:
 /* DefineConstant [NbElemCube = 12]; // Mesh size in superconductors [m]
@@ -20,8 +20,9 @@ h_formulation = 2;
 a_formulation = 6;
 coupled_formulation = 5;
 
-// ---- Parameters of the configuration ----
-Str_SaveDir = StrCat["res\For_Matlab\Sample6mm_Jc(B)\2400mTo300_Relax_ThenRotate\"];
+// Save directory
+DefineConstant[ Str_SaveDir = {"res\For_Matlab\", Highlight "LightYellow", Name "1Input/1Save Directory"}];
+
 DefineConstant[
   Modelled_Samples = {4, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
@@ -116,6 +117,10 @@ DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks
 DefineConstant [Flag_JcB = {1, Highlight "LightGreen", Name "1Input/3Material Properties/6Jc(B) dependence?"}];
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 
+// Applied field parameters
+DefineConstant[ bmax_m = {4, Highlight "LightYellow", Name "1Input/1Applied Field/1Max [Ts-1]"}];
+DefineConstant[ bmin_m = {0, Highlight "LightYellow", Name "1Input/1Applied Field/2Min [Ts-1]"}];
+DefineConstant[ rate = {0.001, Highlight "LightYellow", Name "1Input/1Applied Field/3Rate [Ts-1]"}];
 
 // Informations for the user
 DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];

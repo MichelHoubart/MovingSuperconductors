@@ -160,15 +160,23 @@ Function{
     		jc[Cuboid_Superconductor~{i}] = jc~{i};
     		n[Cuboid_Superconductor~{i}] = n~{i};
 
-    		// Kim's model for anisotropy : Jc(B) = Jc0/(1+(||B||/B0)); n(B) = n1 + (n0-n1)/(1+(||B||/B0)) ---> Adjust the parameters!
-    		DefineConstant[ jc0~{i} = {5.4*1e8, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/5jc Sample%g (Am⁻²) (Kim's model)",i), Visible Flag_JcB}]; // Critical current density [A/m2] QUALITATIVE BULKS : 2.2977*1e8, STACK TAPES : 1.3037*1e8
+        // Kim's model for B dependance : Jc(B) = Jc0/(1+(||B||/B0)); n(B) = n1 + (n0-n1)/(1+(||B||/B0))
+        // Kim's extended : Jc(B) = Jc0/(1+(||B||/B0)) + Jc0*aFE/((1+||B||/B1FE)^2 - B2FE^2)
+    		DefineConstant[ jc0~{i} = {4.5061*1e8, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/5jc Sample%g (Am⁻²) (Kim's model)",i), Visible Flag_JcB}]; // Critical current density [A/m2] QUALITATIVE BULKS : 2.2977*1e8, STACK TAPES : 1.3037*1e8
     		DefineConstant [n0~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/6n0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
     		DefineConstant [n1~{i} = {20, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/7n1 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
     		DefineConstant [B0~{i} = {0.5, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8B0 Sample%g(-) (Kim's model)",i), Visible Flag_JcB}];
-    		jc0[Cuboid_Superconductor~{i}] = jc0~{i};
+        DefineConstant [aFE~{i} = {1000, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8aFE Sample%g(-) (Kim's model FE)",i), Visible Flag_JcB}];
+        DefineConstant [B1FE~{i} = {25, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8B1 Sample%g(-) (Kim's model FE)",i), Visible Flag_JcB}];
+        DefineConstant [B2FE~{i} = {25, Highlight "LightGreen", Name Sprintf("1Input/3Material Properties/8BFE Sample%g(-) (Kim's model FE)",i), Visible Flag_JcB}];
+
+        jc0[Cuboid_Superconductor~{i}] = jc0~{i};
     		n0[Cuboid_Superconductor~{i}] = n0~{i};
     		n1[Cuboid_Superconductor~{i}] = n1~{i};
     		B0[Cuboid_Superconductor~{i}] = B0~{i};
+        aFE[Cuboid_Superconductor~{i}] = aFE~{i};
+        B1FE[Cuboid_Superconductor~{i}] = B1FE~{i};
+        B2FE[Cuboid_Superconductor~{i}] = B2FE~{i};
   	EndFor
 
 	// Anisotropy
@@ -251,14 +259,14 @@ Function{
     DefineConstant [f = {0.1, Visible (Flag_Source ==0), Name "1Input/4Source/1Frequency (Hz)"}]; // Frequency of imposed current intensity [Hz]
     DefineConstant [bmax = {1, Visible (Active_approach==0 || Active_approach==2) , Name "Input/4Source/2Field amplitude (T)"}]; // Maximum applied magnetic induction [T]
     DefineConstant [partLength = {5, Visible (Flag_Source != 0 && (Active_approach==0 || Active_approach==2)), Name "Input/4Source/1Ramp duration (s)"}];
-    DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : ((Flag_Source == 2)||(Flag_Source == 7)) ? ((((2*bmax_m)-bmin_m)/rate)+ RotationPeriod  + MagRelaxPeriod+MagRelaxPeriod2) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Highlight "LightBlue", Name "1Input/5Method/Final Time"}]; // Final time for source definition [s]
+    DefineConstant [timeFinal = {(Flag_Source == 1) ? ((2*bmax_m)-bmin_m)/rate : ((Flag_Source == 2)||(Flag_Source == 7)) ? ((((2*bmax_m)-bmin_m)/rate)+ RotationPeriod + MagRelaxPeriod+MagRelaxPeriod2) : (Flag_Source == 3) ? 2700 : (Active_approach == 2) ? 2700 : (Flag_Source == 5) ? (ConstantlvlDurantion + ((bmax_m-bmin_m)/rate)) : (Flag_Source == 6) ? (ThetaMax/Rotation_Speed) :3*partLength, Highlight "LightBlue", Name "1Input/5Method/Final Time"}]; // Final time for source definition [s]
     DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
     DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
     DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
 
       // ------- NUMERICAL PARAMETERS -------
   	If(Active_approach == 0)
-    		DefineConstant [dt = { (preset==1 || preset == 3) ? timeFinal/15 : timeFinal/15, Highlight "LightBlue",
+    		DefineConstant [dt = { (preset==1 || preset == 3) ? timeFinal/15 : 25, Highlight "LightBlue",
     			ReadOnly !expMode, Name "1Input/5Method/Time step (s)"}]; // Time step (initial if adaptive)[s]
   	Else
     		DefineConstant [dt = {Time_step_amplitude, Highlight "LightBlue",
@@ -422,7 +430,9 @@ PostOperation {
                     Print[ j, OnElementsOf Omega, File StrCat[Str_SaveDir,"j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
                     Print[ b, OnElementsOf Omega , File StrCat[Str_SaveDir,"b_",Str_step,"allstep.pos"]];
                     Print[ j, OnElementsOf Omega, File StrCat[Str_SaveDir,"j_wholedomain",Str_step,"allstep.pos"]];
-
+                    p1 = {0,0,-0.03};
+                    p2 = {0,0,0.03};
+                    Print[ b,  OnLine{{List[p1]}{List[p2]}} {601}, Format Table , File StrCat[Str_SaveDir,"BLineCentre",".txt"], LastTimeStepOnly];
                     // Magnetic moment and force of each sample
                     For i In {1:Num_Super}
                         Str_Sample = Sprintf("%g", i);
