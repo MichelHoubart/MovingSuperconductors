@@ -66,15 +66,15 @@ Macro InitialFileSelection
           DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\1Ech\Periph\Last_computed_h.pos"]];	// Peripheral
           DefineConstant [initialConditionFile_h4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\2Ech\",Str_ay_6664,"mm\Save_hfield_1.pos"]];	// Supplementary sample
         ElseIf(Approach_Type == 2)
-          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_a.pos"]]; // Central sample
-          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_a4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Supplementary sample
+          DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\4Ech\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\4Ech\",Str_ay_6665,"mm\Last_computed_a.pos"]]; // Central sample
+          DefineConstant [initialConditionFile_a3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\4Ech\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_a4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\4Ech\",Str_ay_6665,"mm\Last_computed_a.pos"]];	// Supplementary sample
 
-          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_h.pos"]]; // Central sample
-          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Peripheral
-          DefineConstant [initialConditionFile_h4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\StackedTapes\4Ech\EndStep1\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Supplementary sample
+          DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\4Ech\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h2 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\4Ech\",Str_ay_6665,"mm\Last_computed_h.pos"]]; // Central sample
+          DefineConstant [initialConditionFile_h3 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\4Ech\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Peripheral
+          DefineConstant [initialConditionFile_h4 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\12elem\4Ech\",Str_ay_6665,"mm\Last_computed_h.pos"]];	// Supplementary sample
 
         EndIf
       Else

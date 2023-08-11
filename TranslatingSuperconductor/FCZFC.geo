@@ -28,6 +28,18 @@ For i In {1:Num_Super}
 	p_c~{i}() = PointsOf{Line{l_c~{i}()};};
 	Characteristic Length{p_c~{i}()} = LcCube;
 
+  // Sample faces not oriented correctly
+  f_c~{i}(0) = -f_c~{i}(0);
+  f_c~{i}(2) = -f_c~{i}(2);
+  f_c~{i}(4) = -f_c~{i}(4);
+  /* Printf("Central ech: %g", f_c~{i}(0));
+  Printf("Central ech: %g", f_c~{i}(1));
+  Printf("Central ech: %g", f_c~{i}(2));
+  Printf("Central ech: %g", f_c~{i}(3));
+  Printf("Central ech: %g", f_c~{i}(4));
+  Printf("Central ech: %g", f_c~{i}(5)); */
+
+
 	// Surfaces, lines and points of the superconducting domain
 	MaterialVol_Tot() += {materialVol~{i}};
 	f_c_Tot() += {f_c~{i}()};

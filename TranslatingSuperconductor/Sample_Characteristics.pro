@@ -50,13 +50,13 @@ ay_123456789 = 0.012;
 az_123456789 = 0.012; // Dimension along the c-axis
 
 // Bulk for qualitative test
-ax_666 = 0.013;
-ay_666 = 0.013;
-az_666 = 0.013; // Dimension along the c-axis
+ax_666 = 0.014;
+ay_666 = 0.014;
+az_666 = 0.014; // Dimension along the c-axis
 
 // Fourth sample
 ax_6664 = 0.014;
-ay_6664 = 0.014;
+ay_6664 = 0.005;
 Str_ay_6664 = Sprintf("%g", ay_6664*1000);
 az_6664 = 0.014; // Dimension along the c-axis
 

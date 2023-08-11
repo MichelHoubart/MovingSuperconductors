@@ -10,9 +10,9 @@ DefineConstant [meshMult = 3]; // Multiplier [-] of a default mesh size distribu
 /* DefineConstant [NbElemCube = 12];
 DefineConstant [LcAir = meshMult*0.001]; // Mesh size away from superconductors [m] next : 0.0016 */
 
-DefineConstant [NbElemCube = 13];
+DefineConstant [NbElemCube = 12];
 DefineConstant [NbElemHalfCube = 13];
-DefineConstant [LcAir = meshMult*0.0012]; // Mesh size away from superconductors [m] next : 0.002
+DefineConstant [LcAir = meshMult*0.0016]; // Mesh size away from superconductors [m] next : 0.002
 
 // ---- Formulation definitions (dummy values) ----
 h_formulation = 2;
@@ -21,7 +21,7 @@ coupled_formulation = 5;
 
 // ---- Parameters of the array ----
 /* Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\THA\"]; */
-Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\HA_misaligned\"];
+Str_SaveDir = StrCat["res\For_Matlab\ResultsApproach\12elem\4Samples\Bulks\Step2\5mm_Approachspeedimpact\1mm_s\"];
 DefineConstant[
   Modelled_Samples = {1, Highlight "Red", Choices{
         1="1 : Qualitative bulk",
@@ -31,7 +31,7 @@ DefineConstant[
 		, Name "2Parameters of the configuration/1Type of sample to consider"}
 ]; // COUCOU
 DefineConstant[
-  Num_Super = {3, Highlight "Red", Choices{
+  Num_Super = {4, Highlight "Red", Choices{
         1="1 : Computing the initial condition",
         3="3 : Partial Halbach array",
         5="5 : Complete Halbach array",
@@ -114,14 +114,14 @@ DefineConstant[
 		, Name "3Bulks Motion/Input/0Model approach?", Visible 1}
 ];
 DefineConstant[
-  Approach_Type = {1, Highlight "LightYellow", Choices{
+  Approach_Type = {2, Highlight "LightYellow", Choices{
         1="1 : Parallel to main axis",
         2="2 : Perpendicular to main axis",
         3="3 : Rotation"}
 		, Name "3Bulks Motion/Input/1Assembly process to compute", Visible Active_approach}
 ];
 DefineConstant[
-  Bulk_Disposition = {3, Highlight "LightYellow", Choices{
+  Bulk_Disposition = {1, Highlight "LightYellow", Choices{
         1="1 : Aligned",
         2="2 : Half misaligned",
         3="3 : Fully misaligned",
@@ -147,7 +147,7 @@ DefineConstant [Flag_JcB = {0, Highlight "LightGreen", Name "1Input/3Material Pr
 DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
 DefineConstant[ Flag_Skip1Step = {0, Highlight "LightYellow", Name "3Bulks Motion/Input/98Skip 1 Step"}];
 // Informations for the user
-DefineConstant[ Time_step = {13, Min 13, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
+DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : (Num_Super == 4) ? Time_step_per_cycle/2 : Time_step_per_cycle), Step 1, Loop  2, Name "3Bulks Motion/Real time information/1Time step number", Visible Active_approach}];	// If 4 supercond, only compute assembly, not the retract mvt
 DefineConstant[ Cycle = {1, Min 1, Max ((Active_approach == 0) ? 1 : Approach_cycle_nb), Step 1, Loop  1, Name "3Bulks Motion/Real time information/2Current cycle ", Visible Active_approach}];
 // Bulks position definition
 If(Active_approach == 0)
