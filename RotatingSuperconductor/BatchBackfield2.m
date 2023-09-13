@@ -3,7 +3,8 @@
 Temperature = 65;
 
 % Applied field
-bmin_m = [0 50 100 150 200 300 400 500]*0.001;
+bmin_m = [50 100 150 200 300 400 500]*0.001;
+bmax_m = bmin_m;
 nbSudyval = length(bmin_m);
 
 % Geometry --> don't change
@@ -14,15 +15,16 @@ az = ones(1,nbSudyval)*0.006;
 % Law jcB 
 Flag_JcB = 0; % 0 : indep of B, 1 : Kim, 2: extended Kim
 FittedJcBLaw;
+bmax_m = bmin_m;
 
 % Computing
 f = waitbar(0,'Computing');
 for i = 1:nbSudyval
     waitbar(i/nbSudyval, f, sprintf('Solving case background field at %g K %g/%g',Temperature,i,nbSudyval));
     % Save directory 
-    Str_SaveDir = strcat('D:\Michel\CuboidSuperConductorsWP1\Rotating\BatchRotation\JcConst\Batch',...
+    Str_SaveDir = strcat('D:\Michel\CuboidSuperConductorsWP1\Rotating\BatchRotation\JcConst\FC\Batch',...
                          sprintf('%gKFrom0mTTo%gmT',Temperature,bmin_m(end)*1000),...
-                         '\',sprintf('Background%g',bmin_m(i)),'\');
+                         '\',sprintf('Background%g',bmin_m(i)*1000),'\');
     mkdir(Str_SaveDir)
 
     system([strcat('gmsh Cuboid_Superconductors.geo',...
@@ -40,8 +42,11 @@ for i = 1:nbSudyval
                    ' -setnumber', sprintf(' B1FE_1 %g',B1FE_1(i)),...
                    ' -setnumber', sprintf(' B2FE_1 %g',B2FE_1(i)),...
                    ' -3') ]);
-
+    copyfile('Cuboid_Superconductors.msh', Str_SaveDir);
+    mkdir(strcat(Str_SaveDir,'res\'));
+    
     system([strcat('getdp Cuboid_Superconductors.pro -solve MagDyn',...
+                   ' -name ', sprintf(' %s',Str_SaveDir),'Cuboid_Superconductors',... 
                    ' -setstring', sprintf(' Str_SaveDir %s',Str_SaveDir),...
                    ' -pos MagDyn -verbose 3',... 
                    ' -setnumber', sprintf(' bmax_m %g',bmax_m(i)),...
@@ -58,7 +63,6 @@ for i = 1:nbSudyval
                    ' -setnumber', sprintf(' B2FE_1 %g',B2FE_1(i)),...
                    ' -3') ]); 
 
-    movefile ('Cuboid_Superconductors.res', Str_SaveDir);
     fid = fopen(strcat(Str_SaveDir,'Param.txt'),'w');
     fprintf(fid,'%g %g %g %g %g %g %g %g %g %g %g %g',...
                 ax(i),ay(i),az(i),Flag_JcB,...

@@ -113,14 +113,15 @@ DefineConstant[ Time_step_per_cycle = {200, Highlight "LightYellow", Name "3Bulk
 DefineConstant[ Rotation_Speed = { Pi/1000, Highlight "LightYellow" , Name "3Bulks Rotation/Input/3Rotation speed [Rad.s-1]", Visible Active_approach }];
 DefineConstant[ Time_step_amplitude = {(Rotation_Speed == 0) ? 180 : (ThetaMax)/(Time_step_per_cycle*Rotation_Speed), Highlight "LightYellow", Name "3Bulks Rotation/Input/4Time step duration during motion[s]", Visible Active_approach }];
 DefineConstant [timeStart = {0, Highlight "LightGreen", Name "1Input/3Material Properties/9Initial time"}]; // Initial time [s]
-DefineConstant[ Flag_Test_projection = {0, Highlight "LightYellow", Name "3Bulks Rotation/Input/6Test Projection"}];
+DefineConstant[ Flag_Test_projection = {1, Highlight "LightYellow", Name "3Bulks Rotation/Input/6Test Projection"}];
 DefineConstant [Flag_JcB = {1, Highlight "LightGreen", Name "1Input/3Material Properties/6Jc(B) dependence?"}];
-DefineConstant [FlagFCNoCurrent = {0, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current?"}];
+DefineConstant [FlagFCNoCurrent = {2, Highlight "LightGreen", Name "1Input/3Material Properties/7Model FC without current? (1 - Sample Rot; 2 - Field Rot)"}];
 
 // Applied field parameters
-DefineConstant[ bmax_m = {4, Highlight "LightYellow", Name "1Input/1Applied Field/1Max [Ts-1]"}];
-DefineConstant[ bmin_m = {0, Highlight "LightYellow", Name "1Input/1Applied Field/2Min [Ts-1]"}];
+DefineConstant[ bmax_m = {0.05, Highlight "LightYellow", Name "1Input/1Applied Field/1Max [Ts-1]"}];
+DefineConstant[ bmin_m = {0.05, Highlight "LightYellow", Name "1Input/1Applied Field/2Min [Ts-1]"}];
 DefineConstant[ rate = {0.001, Highlight "LightYellow", Name "1Input/1Applied Field/3Rate [Ts-1]"}];
+Str_Background = Sprintf("%g", bmin_m*1000);
 
 // Informations for the user
 DefineConstant[ Time_step = {1, Min 1, Max ((Active_approach == 0) ? 1 : Time_step_per_cycle), Highlight "Purple", Step 1, Loop  2, Name "3Bulks Rotation/4Real time information/1Time step number", Visible Active_approach}];

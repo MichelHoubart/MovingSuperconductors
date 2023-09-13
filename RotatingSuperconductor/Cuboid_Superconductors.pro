@@ -68,7 +68,10 @@ Group {
       			Surface_Cuboid_Superconductor~{i} = Region[ Boundary_BULK~{i} ];
       			Surface_Superconductors += Region[ Boundary_BULK~{i} ];
       			/* BndOmegaC += Region[ Boundary_BULK~{i} ]; */
+            Layer~{i} =  Region[Air, OnOneSideOf Boundary_BULK~{i}];
+            Vol_Layer += Region[Layer~{i}];
     		EndFor
+        Vol_Force = Region [ Vol_Layer ];
     ElseIf(MaterialType == 1)
     		For i In {1:Num_Super}
       			DefineGroup [Cuboid_Superconductor~{i}];
@@ -237,7 +240,7 @@ Function{
 
     // ------- Constants -------
   	If(Active_approach==0)
-    		DefineConstant [Flag_Source = {7, Highlight "yellow", Choices{
+    		DefineConstant [Flag_Source = {6, Highlight "yellow", Choices{
     			1="Ramp up and down",
     			2="Ramp up, down and flux creep",
     			3="No source => For modelling motion",
@@ -263,10 +266,9 @@ Function{
     DefineConstant [timeFinalSimu = timeFinal]; // Final time of simulation [s]
     DefineConstant [stepTime = 0.01]; // Initiation of the step [s]
     DefineConstant [stepSharpness = 0.001]; // Duration of the step [s]
-
       // ------- NUMERICAL PARAMETERS -------
   	If(Active_approach == 0)
-    		DefineConstant [dt = { (preset==1 || preset == 3) ? timeFinal/15 : 25, Highlight "LightBlue",
+    		DefineConstant [dt = { (preset==1 || preset == 3) ? timeFinal/15 : (Flag_Source == 6) ? Time_step_amplitude:25, Highlight "LightBlue",
     			ReadOnly !expMode, Name "1Input/5Method/Time step (s)"}]; // Time step (initial if adaptive)[s]
   	Else
     		DefineConstant [dt = {Time_step_amplitude, Highlight "LightBlue",
@@ -292,7 +294,7 @@ Function{
     multFix = 1e0;
       // Output information
     DefineConstant [economPos = 0]; // 0: Saves all fields. 1: Does not save fields (.pos)
-    DefineConstant [economInfo = 0]; // 0: Saves all iteration/residual info. 1: Does not save them
+    DefineConstant [economInfo = 1]; // 0: Saves all iteration/residual info. 1: Does not save them
     // Parameters
     DefineConstant [saveAll = 0];  // Save all the iterations? (pay attention to memory! heavy files)
     DefineConstant [writeInterval = (Flag_Source == 6)? 20 : 200]; // Time interval between two successive output file saves [s]
@@ -323,8 +325,11 @@ Function{
   	If(Time_step==1) // First step
   		  // For projection
   			//************ Initial condition File Depending on the considered modelled samples ****************//
-        DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\24elem\a_2_7max_03min.pos"]];	// Central
-        DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\24elem\h_2_7max_03min.pos"]];	// Central
+        /* DefineConstant [initialConditionFile_a1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\24elem\a_2_7max_03min.pos"]];	// Central
+        DefineConstant [initialConditionFile_h1 = StrCat[Str_Directory_Code,"\IniCond_coupled_formulation\Bulk6mm\FC_JinBulk\2Bulks_45minFC\24elem\h_2_7max_03min.pos"]];	// Central */
+
+        DefineConstant [initialConditionFile_a1 = StrCat["D:\Michel\CuboidSuperConductorsWP1\Rotating\BatchRotation\NotMagIniCond\Batch77KFrom0mTTo500mT\Background",Str_Background,"\Last_computed_a.pos"]];	// Central
+        DefineConstant [initialConditionFile_h1 = StrCat["D:\Michel\CuboidSuperConductorsWP1\Rotating\BatchRotation\NotMagIniCond\Batch77KFrom0mTTo500mT\Background",Str_Background,"\Last_computed_h.pos"]];	// Central
   			// Read a from File
   			GmshRead[ initialConditionFile_a1,1];
 
@@ -332,9 +337,12 @@ Function{
   			GmshRead[ initialConditionFile_h1,4];
 
         // Rotate back to go to the right coordinate in the file at previous step, but the field rotate forward
-        If(FlagFCNoCurrent)
-            a_fromFile[Surface_Cuboid_Superconductor_1] = C*VectorField[MatRot[-dTheta_1]*(XYZ[]-CentreSuperconductor_1[])]{1};
-            h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta_1]*Vector[0,0,1.2/mu0];
+        If(FlagFCNoCurrent == 1)
+            a_fromFile[Surface_Cuboid_Superconductor_1] = VectorField[MatRot[-dTheta_1]*(XYZ[]-CentreSuperconductor_1[])]{1};
+            h_fromFile[Cuboid_Superconductor_1] = MatRot[dTheta_1]*Vector[0,0,bmin_m/mu0];
+        ElseIf(FlagFCNoCurrent == 2)
+            a_fromFile[Surface_Cuboid_Superconductor_1] = VectorField[(XYZ[])]{1};
+            h_fromFile[Cuboid_Superconductor_1] = Vector[0,0,bmin_m/mu0];
         Else
             For i In {1:Num_Super}
                 a_fromFile[Surface_Cuboid_Superconductor~{i}] = MatRot[dTheta~{i}]*VectorField[MatRot[-dTheta~{i}]*(XYZ[]-CentreSuperconductor~{i}[])+CentreSuperconductor~{i}[]]{1};
@@ -430,9 +438,10 @@ PostOperation {
                     Print[ j, OnElementsOf Omega, File StrCat[Str_SaveDir,"j_wholedomain",Str_step,".pos"], Format Gmsh, OverrideTimeStepValue Time_step, LastTimeStepOnly];
                     Print[ b, OnElementsOf Omega , File StrCat[Str_SaveDir,"b_",Str_step,"allstep.pos"]];
                     Print[ j, OnElementsOf Omega, File StrCat[Str_SaveDir,"j_wholedomain",Str_step,"allstep.pos"]];
-                    p1 = {0,0,-0.03};
-                    p2 = {0,0,0.03};
-                    Print[ b,  OnLine{{List[p1]}{List[p2]}} {601}, Format Table , File StrCat[Str_SaveDir,"BLineCentre",".txt"], LastTimeStepOnly];
+                    p1 = {0,0,-0.025};
+                    p2 = {0,0,0.025};
+                    Print[ b,  OnLine{{List[p1]}{List[p2]}} {601}, Format Table , File StrCat[Str_SaveDir,"BLineCentre",".txt"], TimeValue 1000]; // Half rotation hard coded
+                    Print[ b,  OnLine{{List[p1]}{List[p2]}} {601}, Format Table , File StrCat[Str_SaveDir,"BLineCentre_Step",".txt"], TimeStep 100];
                     // Magnetic moment and force of each sample
                     For i In {1:Num_Super}
                         Str_Sample = Sprintf("%g", i);
@@ -455,6 +464,20 @@ PostOperation {
         }
     }
 }
+
+PostOperation {
+    { Name ExportSingleStep; LastTimeStepOnly realTimeSolution ;
+      If(formulation == coupled_formulation)
+          NameOfPostProcessing MagDyn_coupled;
+      EndIf
+      Operation {
+          Print[ j, OnElementsOf Omega, File StrCat[Str_SaveDir,"j_wholedomain",Str_step,"allstep.pos"]];
+          p1 = {0,0,-0.025};
+          p2 = {0,0,0.025};
+          Print[ b,  OnLine{{List[p1]}{List[p2]}} {601}, Format TimeTable , File StrCat[Str_SaveDir,"BLineCentre",".txt"], TimeStep 10];
+      }
+    }
+  }
 
 DefineConstant[
   R_ = {"MagDyn", Name "GetDP/1ResolutionChoices", Visible 0},
