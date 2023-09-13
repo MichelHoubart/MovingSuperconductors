@@ -693,7 +693,7 @@ Formulation {
             Galerkin { [ mu[] * Dof{h} / $DTime , {h} ];
                 In MagnLinDomain; Integration Int; Jacobian Vol;  }
             // Time derivative - previous solution
-             Galerkin { [ - (($TimeStep == 1 && (FlagFCNoCurrent==1 || Flag_Test_projection == 1)) || ((Active_approach == 1)||(Active_approach == 2))) * mu[] * h_fromFile[]##2 / $DTime , {h} ];
+             Galerkin { [ - (($TimeStep == 1 && (FlagFCNoCurrent==1 || Flag_Test_projection == 1)) || ((Active_approach == 1)||(Active_approach == 2))) * mu[] * h_fromFile[] / $DTime , {h} ];
                 In MagnLinDomain; Integration Int; Jacobian Vol;  }
             Galerkin { [ - ((Active_approach == 0 && (Flag_Test_projection == 0 && FlagFCNoCurrent == 0) || $TimeStep > 1)) * mu[] * {h}[1] / $DTime , {h} ];
                 In MagnLinDomain; Integration Int; Jacobian Vol;  }
@@ -732,7 +732,7 @@ Formulation {
             // ---- SURFACE TERMS ----
             Galerkin { [ + Dof{a} /\ Normal[] /$DTime , {h}];
                 In BndOmega_ha; Integration Int; Jacobian Sur; }
-            Galerkin { [ - (($TimeStep == 1 && (FlagFCNoCurrent==1 || Flag_Test_projection == 1)) || ((Active_approach == 1)||(Active_approach == 2))) *a_fromFile[]##1 /\ Normal[] /$DTime , {h}];
+            Galerkin { [ - (($TimeStep == 1 && (FlagFCNoCurrent==1 || Flag_Test_projection == 1)) || ((Active_approach == 1)||(Active_approach == 2))) *a_fromFile[] /\ Normal[] /$DTime , {h}];
                 In BndOmega_ha; Integration Int; Jacobian Sur; }
             Galerkin { [ - ((Active_approach == 0 && (Flag_Test_projection == 0 && FlagFCNoCurrent == 0) || $TimeStep > 1)) *{a}[1] /\ Normal[] /$DTime , {h}];
                 In BndOmega_ha; Integration Int; Jacobian Sur; }

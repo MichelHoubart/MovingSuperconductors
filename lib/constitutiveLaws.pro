@@ -45,22 +45,35 @@ Function {
     nu[MagnLinDomain] = nu0;
 
     // ------- Superconductor constitutive law -------
-    // h-formulation: Power law e(j) = rho(j) * j, with rho(j) = ec/jc * (|j|/jc)^(n-1)	
-    jcb[Super] = jc[];///(1 + $1);
-    rho[Super] = ec / jcb[$2] * (Min[($TimeStep<-1)?1.5*jcb[$2]:1e99, Norm[$1]]/jcb[$2])^(n[] - 1);
-	dedj[Super] = (1.0/$relaxFactor) *
-      (ec / jcb[$2] * (Min[($TimeStep<-1)?1.5*jcb[$2]:1e99, Norm[$1]]/jcb[$2])^(n[] - 1) * SQRTAN[]*SQRTAN[] +
-       ec / jcb[$2]^3 * (n[] - 1) * (Min[($TimeStep<-1)?1.5*jcb[$2]:1e99, Norm[$1]]/jcb[$2])^(n[] - 3) *SquDyadicProduct[SQRTAN[]*$1]) ;
-	
+    // h-formulation: Power law e(j) = rho(j) * j, with rho(j) = ec/jc * (|j|/jc)^(n-1)
+    If(Flag_JcB == 1 || Flag_JcB==2)  //Flag_JcB==2 --> Model Fish tail
+      jcKimsLaw[Super] = jc0[]*(1/(1+(Norm[$1]/B0[]))) + jc0[]*((Flag_JcB-1)*aFE[])/(((Norm[$1]/B0[])-B1FE[])^2+(B2FE[])^2)     ;
+      nKimsLaw[Super] = n1[] + (n0[]-n1[])/(1+(Norm[$1]/B0[]));
+    EndIf
+
+    If(Flag_JcB == 0)
+      jcb[Super] = jc[];///(1 + $1);
+      rho[Super] = ec / jcb[$2] * (Min[($TimeStep<-1)?1.5*jcb[$2]:1e99, Norm[$1]]/jcb[$2])^(n[] - 1);
+  	  dedj[Super] = (1.0/$relaxFactor) *
+        (ec / jcb[$2] * (Min[($TimeStep<-1)?1.5*jcb[$2]:1e99, Norm[$1]]/jcb[$2])^(n[] - 1) * SQRTAN[]*SQRTAN[] +
+         ec / jcb[$2]^3 * (n[] - 1) * (Min[($TimeStep<-1)?1.5*jcb[$2]:1e99, Norm[$1]]/jcb[$2])^(n[] - 3) *SquDyadicProduct[SQRTAN[]*$1]) ;
+    ElseIf(Flag_JcB == 1 || Flag_JcB==2)
+      rho[Super] = ec / jcKimsLaw[$2] * (Min[($TimeStep<-1)?1.5*jcKimsLaw[$2]:1e99, Norm[$1]]/jcKimsLaw[$2])^(n[] - 1);
+  	  dedj[Super] = (1.0/$relaxFactor) *
+        (ec / jcKimsLaw[$2] * (Min[($TimeStep<-1)?1.5*jcKimsLaw[$2]:1e99, Norm[$1]]/jcKimsLaw[$2])^(n[] - 1) * SQRTAN[]*SQRTAN[] +
+         ec / jcKimsLaw[$2]^3 * (n[] - 1) * (Min[($TimeStep<-1)?1.5*jcKimsLaw[$2]:1e99, Norm[$1]]/jcKimsLaw[$2])^(n[] - 3) *SquDyadicProduct[SQRTAN[]*$1]) ;
+
+    EndIf
+
 	// Isotropic Behaviour
     // dedj[Super] = (1.0/$relaxFactor) *
       // (ec / jcb[$2] * (Min[($TimeStep<-1)?1.5*jcb[$2]:1e99, Norm[$1]]/jcb[$2])^(n - 1) * TensorDiag[1, 1, 1] +
        // ec / jcb[$2]^3 * (n - 1) * (Min[($TimeStep<-1)?1.5*jcb[$2]:1e99, Norm[$1]]/jcb[$2])^(n - 3) * SquDyadicProduct[$1]);
-	   
+
     // a-formulation: Power law j(e) = sigma(e) * e, with sigma(e) = jc/ec^(1/n) * |e|^((1-n)/n)
 		If(Flag_JcB == 0)
 			sigma[Super] = jc[] / ec * 1.0 / ( epsSigma + ( Norm[$1]/ec )^((n[]-1.0)/n[]) );
-			sigmae[Super] = sigma[$1]*Anys_Matrix[]*$1; 
+			sigmae[Super] = sigma[$1]*Anys_Matrix[]*$1;
 			// sigmae[Super] = sigma[$1]* $1; //Isotropic behaviour
 			// sigmae[Super] = TensorDiag[sigma[$1], sigma[$1]/100000, sigma[$1]] * $1;
 			djde[Super] = ($iter > -1) ? ((1.0/$relaxFactor) *
@@ -73,22 +86,19 @@ Function {
 				// + jc[]/ec^3 * (1.0-n[])/n[] * (#4)^(2) * 1/((#3)^((n[]+1.0)/n[]) + epsSigma2 ) * SquDyadicProduct[$1]))
 					// : (jc[] / ec * 1.0 / ( epsSigma + ( Norm[$1]/ec )^((n[]-1.0)/n[]) ) * TensorDiag[1, 1, 1] );
 		ElseIf(Flag_JcB == 1)
-			jcKimsLaw[Super] = jc0[]*(1/(1+(Norm[$1]/B0[])));
-			nKimsLaw[Super] = n1[] + (n0[]-n1[])/(1+(Norm[$1]/B0[]));
-			
-			sigma[Super] = jcKimsLaw[] / ec * 1.0 / ( epsSigma + ( Norm[$1]/ec )^((nKimsLaw[]-1.0)/nKimsLaw[]) );
-			sigmae[Super] = sigma[$1]*Anys_Matrix[]*$1; 
-			
+			sigma[Super] = jcKimsLaw[] / ec * 1.0 / ( epsSigma + ( Norm[$1]/ec )^((n[]-1.0)/n[]) );
+			sigmae[Super] = sigma[$1]*Anys_Matrix[]*$1;
+
 			djde[Super] = ($iter > -1) ? ((1.0/$relaxFactor) *
-				( jcKimsLaw[] / ec * (1.0 / (epsSigma + ( (Norm[$1]/ec)#3 )^((nKimsLaw[]-1.0)/nKimsLaw[]) ))#4 *Anys_Matrix[]
-				+ jcKimsLaw[]/ec^3 * (1.0-nKimsLaw[])/nKimsLaw[] * (#4)^(2) * 1/((#3)^((nKimsLaw[]+1.0)/nKimsLaw[]) + epsSigma2 ) * SquDyadicProduct[$1]*Anys_Matrix[]))
-					: (jcKimsLaw[] / ec * 1.0 / ( epsSigma + ( Norm[$1]/ec )^((nKimsLaw[]-1.0)/nKimsLaw[]) ) * TensorDiag[1, 1, 1]*Anys_Matrix[] );
+				( jcKimsLaw[] / ec * (1.0 / (epsSigma + ( (Norm[$1]/ec)#3 )^((n[]-1.0)/n[]) ))#4 *Anys_Matrix[]
+				+ jcKimsLaw[]/ec^3 * (1.0-n[])/n[] * (#4)^(2) * 1/((#3)^((n[]+1.0)/n[]) + epsSigma2 ) * SquDyadicProduct[$1]*Anys_Matrix[]))
+					: (jcKimsLaw[] / ec * 1.0 / ( epsSigma + ( Norm[$1]/ec )^((n[]-1.0)/n[]) ) * TensorDiag[1, 1, 1]*Anys_Matrix[] );
 		EndIf
 
 
     // ------- Copper constitutive law -------
     // sigma[LinOmegaC] = 58e6; // [S/m]
-	
+
 	sigma[LinOmegaC] = 1e30; // [S/m] \\ For test perfect cond
     rho[LinOmegaC] = 1./sigma[];
     sigmae[LinOmegaC] = sigma[$1] * $1;// [S/m]

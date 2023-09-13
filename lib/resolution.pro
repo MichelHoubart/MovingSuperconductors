@@ -1,6 +1,6 @@
 Function{
     // Output directory name (.txt only, .pos are not put there)
-    DefineConstant [resDirectory = StrCat["../",name,"/res/"]];
+    DefineConstant [resDirectory = StrCat["/res/"]];
     DefineConstant [outputDirectory = StrCat[resDirectory,testname]];
     // Filenames - On domains
     DefineConstant [infoIterationFile   = StrCat[outputDirectory,"/iteration.txt"]];
